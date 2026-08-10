@@ -1,0 +1,11 @@
+{
+  "title": "FORMA Studio | Luxury Interior Design & Architecture",
+  "description": "FORMA Studio is a luxury interior design and architecture practice shaping residential, commercial, and hospitality environments.",
+  "robots": {
+    "index": true
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -1,0 +1,1231 @@
+import { useState, useEffect, useRef, useCallback } from 'react'
+
+/* ─── Image helpers ───────────────────────────────────────────────── */
+const IMGS = {
+  hero: 'https://images.unsplash.com/photo-1757924461488-ef9ad0670978?w=1800&h=1000&fit=crop&auto=format',
+  proj1: 'https://images.unsplash.com/photo-1648881806148-e5c51179c826?w=900&h=700&fit=crop&auto=format',
+  proj2: 'https://images.unsplash.com/photo-1688647063090-36f36f692d95?w=700&h=900&fit=crop&auto=format',
+  proj3: 'https://images.unsplash.com/photo-1745301558339-44eb3217d5da?w=900&h=600&fit=crop&auto=format',
+  proj4: 'https://images.unsplash.com/photo-1772112334845-86016056137b?w=800&h=700&fit=crop&auto=format',
+  proj5: 'https://images.unsplash.com/photo-1696413542101-2479dd479982?w=700&h=500&fit=crop&auto=format',
+  detail: 'https://images.unsplash.com/photo-1682184805271-11671b7ecf4c?w=1200&h=800&fit=crop&auto=format',
+  detail2: 'https://images.unsplash.com/photo-1724582586458-a51791349977?w=700&h=900&fit=crop&auto=format',
+  philosophy: 'https://images.unsplash.com/photo-1711873316332-acb6930211e1?w=1000&h=1200&fit=crop&auto=format',
+  about: 'https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?w=700&h=900&fit=crop&auto=format',
+  about2: 'https://images.unsplash.com/photo-1483366774565-c783b9f70e2c?w=900&h=600&fit=crop&auto=format',
+  mat1: 'https://images.unsplash.com/photo-1511109520219-fec6140bf9d8?w=600&h=700&fit=crop&auto=format',
+  mat2: 'https://images.unsplash.com/photo-1668316429902-887bf2dcb8eb?w=600&h=700&fit=crop&auto=format',
+  mat3: 'https://images.unsplash.com/photo-1600095355173-b970ea5ceb46?w=600&h=700&fit=crop&auto=format',
+  mat4: 'https://images.unsplash.com/photo-1572814698590-faaa5af32907?w=600&h=700&fit=crop&auto=format',
+  journal1: 'https://images.unsplash.com/photo-1724582586458-a51791349977?w=700&h=500&fit=crop&auto=format',
+  journal2: 'https://images.unsplash.com/photo-1521194278274-c33e3ef2c448?w=700&h=500&fit=crop&auto=format',
+  journal3: 'https://images.unsplash.com/photo-1682184805271-11671b7ecf4c?w=700&h=500&fit=crop&auto=format',
+  cta: 'https://images.unsplash.com/photo-1757924461488-ef9ad0670978?w=1600&h=900&fit=crop&auto=format',
+}
+
+/* ─── Types ───────────────────────────────────────────────────────── */
+interface NavItem { label: string; href: string }
+const NAV: NavItem[] = [
+  { label: 'Work', href: '#work' },
+  { label: 'Services', href: '#services' },
+  { label: 'About', href: '#about' },
+  { label: 'Journal', href: '#journal' },
+  { label: 'Contact', href: '#contact' },
+]
+
+/* ─── Navigation ──────────────────────────────────────────────────── */
+function Navigation() {
+  const [scrolled, setScrolled] = useState(false)
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    const handle = () => setScrolled(window.scrollY > 40)
+    window.addEventListener('scroll', handle)
+    return () => window.removeEventListener('scroll', handle)
+  }, [])
+
+  return (
+    <nav
+      style={{ fontFamily: 'Instrument Sans, system-ui, sans-serif' }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled ? 'bg-[#F5F1EB]/95 backdrop-blur-sm border-b border-[rgba(28,25,23,0.1)]' : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16 flex items-center justify-between h-16 md:h-20">
+        {/* Logo */}
+        <a href="#" className="flex items-center gap-2 group">
+          <span
+            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+            className={`text-xl font-medium tracking-tight transition-colors duration-300 ${
+              scrolled ? 'text-[#1C1917]' : 'text-[#F5F1EB]'
+            }`}
+          >
+            FORMA
+          </span>
+          <span
+            className="w-1 h-1 rounded-full bg-[#B8956A] mt-0.5"
+          />
+          <span className={`text-xs tracking-[0.2em] uppercase font-light hidden sm:block transition-colors duration-300 ${
+            scrolled ? 'text-[#9B9189]' : 'text-[#F5F1EB]/70'
+          }`}>
+            Studio
+          </span>
+        </a>
+
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-10">
+          {NAV.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className={`text-sm tracking-wide transition-colors duration-300 ${
+                scrolled
+                  ? 'text-[#1C1917]/70 hover:text-[#1C1917]'
+                  : 'text-[#F5F1EB]/80 hover:text-[#F5F1EB]'
+              }`}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="hidden md:block">
+          <a
+            href="#contact"
+            className={`text-xs tracking-[0.12em] uppercase px-6 py-2.5 transition-all duration-300 border ${
+              scrolled
+                ? 'border-[#1C1917] text-[#1C1917] hover:bg-[#1C1917] hover:text-[#F5F1EB]'
+                : 'border-[#F5F1EB] text-[#F5F1EB] hover:bg-[#F5F1EB] hover:text-[#1C1917]'
+            }`}
+          >
+            Start a Project
+          </a>
+        </div>
+
+        {/* Mobile menu */}
+        <button
+          className="md:hidden flex flex-col gap-1.5 p-1"
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
+        >
+          <span className={`block w-6 h-px transition-all duration-300 ${scrolled ? 'bg-[#1C1917]' : 'bg-[#F5F1EB]'} ${open ? 'rotate-45 translate-y-2' : ''}`} />
+          <span className={`block w-4 h-px transition-all duration-300 ${scrolled ? 'bg-[#1C1917]' : 'bg-[#F5F1EB]'} ${open ? 'opacity-0' : ''}`} />
+          <span className={`block w-6 h-px transition-all duration-300 ${scrolled ? 'bg-[#1C1917]' : 'bg-[#F5F1EB]'} ${open ? '-rotate-45 -translate-y-2' : ''}`} />
+        </button>
+      </div>
+
+      {/* Mobile drawer */}
+      {open && (
+        <div className="md:hidden bg-[#F5F1EB] border-t border-[rgba(28,25,23,0.1)] px-8 pb-8 pt-4">
+          {NAV.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className="block py-3 text-[#1C1917]/70 hover:text-[#1C1917] text-sm tracking-wide border-b border-[rgba(28,25,23,0.08)] transition-colors"
+            >
+              {item.label}
+            </a>
+          ))}
+          <a
+            href="#contact"
+            onClick={() => setOpen(false)}
+            className="mt-6 block text-center border border-[#1C1917] text-[#1C1917] text-xs tracking-[0.12em] uppercase px-6 py-3"
+          >
+            Start a Project
+          </a>
+        </div>
+      )}
+    </nav>
+  )
+}
+
+/* ─── Hero ────────────────────────────────────────────────────────── */
+function Hero() {
+  return (
+    <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
+      <video
+        src="/assets/video/hero/hero.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-80"
+      />
+      {/* Dark vignette */}
+      <div className="absolute inset-0 bg-black/30 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/50" />
+
+      {/* Content */}
+      <div className="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 py-20 md:py-28 w-full flex flex-col items-center text-center">
+        <div className="max-w-4xl flex flex-col items-center text-center">
+          <p className="text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light">
+            Interior Design & Architecture Studio
+          </p>
+          <h1
+            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+            className="text-[#F5F1EB] text-5xl md:text-7xl lg:text-8xl font-medium leading-[1.05] mb-6"
+          >
+            Spaces Designed
+            <br />
+            <em className="italic font-normal">Around You</em>
+          </h1>
+          <p className="text-[#F5F1EB]/60 text-base md:text-lg font-light leading-relaxed mb-10 max-w-none md:whitespace-nowrap mx-auto">
+            Thoughtful interiors shaped by architecture, material, and the way you live.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a
+              href="#work"
+              className="bg-[#F5F1EB] text-[#1C1917] text-xs tracking-[0.12em] uppercase px-8 py-3.5 hover:bg-[#B8956A] hover:text-[#F5F1EB] transition-all duration-300"
+            >
+              Explore Our Work
+            </a>
+            <a
+              href="#contact"
+              className="border border-[#F5F1EB]/50 text-[#F5F1EB] text-xs tracking-[0.12em] uppercase px-8 py-3.5 hover:border-[#F5F1EB] hover:bg-[#F5F1EB]/10 transition-all duration-300"
+            >
+              Start a Project
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Section Header ──────────────────────────────────────────────── */
+function SectionHeader({ label, heading, sub }: { label: string; heading: string; sub?: string }) {
+  return (
+    <div className="mb-16 md:mb-20">
+      <p className="text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-4 font-light">{label}</p>
+      <h2
+        style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+        className="text-[#1C1917] text-4xl md:text-5xl lg:text-6xl font-medium leading-tight mb-4"
+      >
+        {heading}
+      </h2>
+      {sub && (
+        <p className="text-[#9B9189] text-base md:text-lg font-light leading-relaxed max-w-xl">{sub}</p>
+      )}
+    </div>
+  )
+}
+
+/* ─── Selected Work ───────────────────────────────────────────────── */
+const PROJECTS = [
+  { img: IMGS.proj1, name: 'Casa Verde', location: 'Chennai, India', type: 'Residential Interior', year: '2026', size: 'large' },
+  { img: IMGS.proj2, name: 'The Atelier', location: 'Mumbai, India', type: 'Commercial Interior', year: '2025', size: 'tall' },
+  { img: IMGS.proj3, name: 'Villa Lumière', location: 'Bengaluru, India', type: 'Hospitality Design', year: '2025', size: 'wide' },
+  { img: IMGS.proj4, name: 'Meridian House', location: 'Delhi, India', type: 'Residential Interior', year: '2024', size: 'medium' },
+  { img: IMGS.proj5, name: 'Studio Blanc', location: 'Hyderabad, India', type: 'Commercial Interior', year: '2024', size: 'small' },
+]
+
+function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: number }) {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      className="group cursor-pointer"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="img-zoom relative overflow-hidden bg-[#EDE8DF]">
+        <img
+          src={project.img}
+          alt={`${project.name} — ${project.type}`}
+          className="w-full h-full object-cover block"
+          style={{ aspectRatio: project.size === 'tall' ? '3/4' : project.size === 'wide' ? '16/9' : '4/3' }}
+        />
+        <div
+          className="absolute inset-0 bg-[#1C1917]/40 flex items-end p-6 transition-opacity duration-400"
+          style={{ opacity: hovered ? 1 : 0 }}
+        >
+          <span className="text-[#F5F1EB] text-xs tracking-[0.15em] uppercase border-b border-[#F5F1EB]/60 pb-0.5">
+            View Project →
+          </span>
+        </div>
+      </div>
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <div>
+          <h3
+            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+            className="text-[#1C1917] text-xl font-medium mb-1"
+          >
+            {project.name}
+          </h3>
+          <p className="text-[#9B9189] text-sm">{project.location}</p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="text-[#9B9189] text-xs tracking-wide">{project.type}</p>
+          <p className="text-[#1C1917]/40 text-xs mt-0.5">{project.year}</p>
+        </div>
+      </div>
+      <p className="text-[#1C1917]/20 text-xs tracking-[0.15em] mt-1">
+        {String(index + 1).padStart(2, '0')}
+      </p>
+    </div>
+  )
+}
+
+function SelectedWork() {
+  return (
+    <section id="work" className="py-24 md:py-36 bg-[#F5F1EB]">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16 md:mb-24 gap-8">
+          <SectionHeader
+            label="Portfolio"
+            heading={"Selected\nWork"}
+            sub="A collection of spaces where architecture, material, and everyday life come together."
+          />
+          <a
+            href="#work"
+            className="self-start md:self-end text-[#1C1917] text-xs tracking-[0.15em] uppercase border-b border-[#1C1917]/30 pb-0.5 hover:border-[#B8956A] hover:text-[#B8956A] transition-colors duration-200 flex-shrink-0"
+          >
+            View All Projects
+          </a>
+        </div>
+
+        {/* Asymmetric editorial grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+          {/* Row 1: large left + tall right */}
+          <div className="md:col-span-7">
+            <ProjectCard project={PROJECTS[0]} index={0} />
+          </div>
+          <div className="md:col-span-5 md:pt-16">
+            <ProjectCard project={PROJECTS[1]} index={1} />
+          </div>
+
+          {/* Row 2: wide full */}
+          <div className="md:col-span-8 md:col-start-3">
+            <ProjectCard project={PROJECTS[2]} index={2} />
+          </div>
+
+          {/* Row 3: medium + small */}
+          <div className="md:col-span-6">
+            <ProjectCard project={PROJECTS[3]} index={3} />
+          </div>
+          <div className="md:col-span-4 md:pt-8">
+            <ProjectCard project={PROJECTS[4]} index={4} />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Project Detail Preview ──────────────────────────────────────── */
+function ProjectDetail() {
+  return (
+    <section className="py-24 md:py-36 bg-[#EDE8DF]">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
+          {/* Images */}
+          <div className="md:col-span-7 relative">
+            <div className="img-zoom">
+              <img
+                src={IMGS.detail}
+                alt="Villa Lumière — architectural interior with large windows"
+                className="w-full h-[60vh] object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-8 -right-4 md:-right-8 w-48 h-60 md:w-64 md:h-80 img-zoom border-4 border-[#EDE8DF] shadow-xl hidden md:block">
+              <img
+                src={IMGS.detail2}
+                alt="Detail view of Villa Lumière"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="md:col-span-5 md:pl-8 lg:pl-16">
+            <p className="text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-4">Featured Project</p>
+            <h2
+              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+              className="text-[#1C1917] text-4xl md:text-5xl font-medium leading-tight mb-3"
+            >
+              Villa Lumière
+            </h2>
+            <p className="text-[#9B9189] text-sm mb-2">Bengaluru, India · Hospitality Design · 2025</p>
+            <div className="w-8 h-px bg-[#B8956A] my-6" />
+            <p className="text-[#1C1917]/70 text-base leading-relaxed mb-10 font-light">
+              A boutique hospitality residence that merges Indian craft traditions with a rigorous
+              contemporary spatial language. Stone, handwoven textiles, and curated light transform
+              every room into a deliberate moment of stillness.
+            </p>
+            <a
+              href="#work"
+              className="inline-flex items-center gap-3 text-[#1C1917] text-xs tracking-[0.15em] uppercase group"
+            >
+              <span className="border-b border-[#1C1917]/40 pb-0.5 group-hover:border-[#B8956A] group-hover:text-[#B8956A] transition-colors duration-200">
+                View Project
+              </span>
+              <span className="text-[#B8956A] group-hover:translate-x-1 transition-transform duration-200">→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Services ────────────────────────────────────────────────────── */
+const SERVICES = [
+  {
+    num: '01',
+    title: 'Residential Interiors',
+    desc: 'Bespoke living spaces shaped around your lifestyle — from single rooms to entire residences.',
+  },
+  {
+    num: '02',
+    title: 'Commercial Interiors',
+    desc: 'Environments that elevate brands, increase productivity, and leave lasting impressions.',
+  },
+  {
+    num: '03',
+    title: 'Hospitality Design',
+    desc: 'Hotels, restaurants, and resorts that create immersive guest experiences through spatial storytelling.',
+  },
+  {
+    num: '04',
+    title: 'Architecture & Space Planning',
+    desc: 'Architectural interventions that redefine how a space is inhabited and understood.',
+  },
+  {
+    num: '05',
+    title: 'Custom Furniture',
+    desc: 'One-of-a-kind furniture designed and crafted to complete each unique interior.',
+  },
+  {
+    num: '06',
+    title: 'Styling & Material Selection',
+    desc: 'Curation of materials, finishes, textiles, and objects that give a space its character.',
+  },
+]
+
+function Services() {
+  return (
+    <section id="services" className="py-24 md:py-36 bg-[#F5F1EB]">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div className="md:col-span-4">
+            <SectionHeader
+              label="What We Do"
+              heading={"From Concept\nto Completion"}
+            />
+            <p className="text-[#9B9189] text-sm font-light leading-relaxed">
+              We offer a full spectrum of design services — each guided by the same commitment
+              to craft, intention, and attention to detail.
+            </p>
+          </div>
+
+          <div className="md:col-span-7 md:col-start-6">
+            <div className="divide-y divide-[rgba(28,25,23,0.1)]">
+              {SERVICES.map((s) => (
+                <ServiceRow key={s.num} service={s} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ServiceRow({ service }: { service: typeof SERVICES[0] }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div
+      className="py-6 group cursor-pointer"
+      onClick={() => setOpen(!open)}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-6">
+          <span className="text-[#1C1917]/20 text-xs tracking-[0.1em] pt-1 flex-shrink-0">{service.num}</span>
+          <h3
+            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+            className="text-[#1C1917] text-xl md:text-2xl font-medium group-hover:text-[#B8956A] transition-colors duration-200"
+          >
+            {service.title}
+          </h3>
+        </div>
+        <span className={`text-[#1C1917]/40 text-lg flex-shrink-0 mt-0.5 transition-transform duration-300 ${open ? 'rotate-45' : ''}`}>+</span>
+      </div>
+      {open && (
+        <p className="mt-3 ml-12 text-[#9B9189] text-sm font-light leading-relaxed">{service.desc}</p>
+      )}
+    </div>
+  )
+}
+
+/* ─── Design Philosophy ───────────────────────────────────────────── */
+function Philosophy() {
+  return (
+    <section className="py-24 md:py-36 bg-[#1C1917]">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+          <div className="md:col-span-6 lg:col-span-5">
+            <p className="text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light">Our Philosophy</p>
+            <h2
+              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+              className="text-[#F5F1EB] text-4xl md:text-5xl lg:text-6xl font-medium leading-tight mb-8"
+            >
+              Design With
+              <br />
+              <em className="italic font-normal text-[#B8956A]">Intention.</em>
+            </h2>
+            <p className="text-[#F5F1EB]/50 text-base md:text-lg font-light leading-relaxed">
+              We create spaces that balance architecture, functionality, material, and emotion — designed not simply to look beautiful, but to feel right.
+            </p>
+            <div className="mt-12 flex items-center gap-4">
+              <div className="w-12 h-px bg-[#B8956A]" />
+              <p className="text-[#F5F1EB]/30 text-xs tracking-[0.15em] uppercase font-light">Forma Studio</p>
+            </div>
+          </div>
+          <div className="md:col-span-6 lg:col-span-7 img-zoom">
+            <img
+              src={IMGS.philosophy}
+              alt="Architectural interior — minimal white corridor with skylight"
+              className="w-full h-[70vh] object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Process ─────────────────────────────────────────────────────── */
+const STEPS = [
+  { num: '01', title: 'Discover', desc: 'Understanding the client, space, lifestyle, and goals.' },
+  { num: '02', title: 'Concept', desc: 'Developing the design direction, mood, materials, and spatial language.' },
+  { num: '03', title: 'Design', desc: 'Transforming the concept into detailed layouts, visuals, and specifications.' },
+  { num: '04', title: 'Execute', desc: 'Managing the execution and bringing every detail to life.' },
+  { num: '05', title: 'Deliver', desc: 'A finished space that feels personal, functional, and timeless.' },
+]
+
+function Process() {
+  return (
+    <section className="py-24 md:py-36 bg-[#F5F1EB]">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16 md:mb-24">
+          <div className="md:col-span-5">
+            <SectionHeader
+              label="How We Work"
+              heading="Our Process"
+            />
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-px bg-[rgba(28,25,23,0.1)]">
+          {STEPS.map((step) => (
+            <div key={step.num} className="bg-[#F5F1EB] p-8 hover:bg-[#EDE8DF] transition-colors duration-300 group">
+              <p
+                style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+                className="text-[#1C1917]/15 text-5xl font-medium mb-6 group-hover:text-[#B8956A]/30 transition-colors duration-300"
+              >
+                {step.num}
+              </p>
+              <h3
+                style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+                className="text-[#1C1917] text-lg font-medium mb-3"
+              >
+                {step.title}
+              </h3>
+              <p className="text-[#9B9189] text-sm font-light leading-relaxed">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── About ───────────────────────────────────────────────────────── */
+const METRICS = [
+  { value: '10+', label: 'Years Experience' },
+  { value: '120+', label: 'Projects Completed' },
+  { value: '8', label: 'Cities' },
+  { value: '25+', label: 'Design Awards' },
+]
+
+function About() {
+  return (
+    <section id="about" className="py-24 md:py-36 bg-[#EDE8DF]">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
+          {/* Images */}
+          <div className="md:col-span-5 relative">
+            <div className="img-zoom">
+              <img
+                src={IMGS.about}
+                alt="Studio interior — design workspace"
+                className="w-full h-[60vh] object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-6 -right-4 w-40 h-52 img-zoom border-4 border-[#EDE8DF] hidden md:block">
+              <img
+                src={IMGS.about2}
+                alt="Architectural exterior"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="md:col-span-6 md:col-start-7">
+            <SectionHeader
+              label="About the Studio"
+              heading={"Spaces With\nCharacter."}
+            />
+            <p className="text-[#1C1917]/70 text-base font-light leading-relaxed mb-6">
+              Forma Studio is a multidisciplinary interior design and architecture practice founded on the belief
+              that every space has a story waiting to be told. We work across residential, commercial, and
+              hospitality typologies — bringing the same level of care and craft to each project.
+            </p>
+            <p className="text-[#1C1917]/70 text-base font-light leading-relaxed mb-12">
+              Our process is deeply collaborative. We listen before we draw, observe before we propose,
+              and design before we specify — because the best interiors are the ones that belong to
+              the people who inhabit them.
+            </p>
+
+            {/* Metrics */}
+            <div className="grid grid-cols-2 gap-px bg-[rgba(28,25,23,0.1)] border border-[rgba(28,25,23,0.1)]">
+              {METRICS.map((m) => (
+                <div key={m.label} className="bg-[#EDE8DF] px-6 py-5">
+                  <p
+                    style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+                    className="text-[#1C1917] text-3xl font-medium mb-1"
+                  >
+                    {m.value}
+                  </p>
+                  <p className="text-[#9B9189] text-xs tracking-wide">{m.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Materials ───────────────────────────────────────────────────── */
+const MATERIALS = [
+  { img: IMGS.mat1, label: 'Wood', caption: 'Warm grain, enduring craft' },
+  { img: IMGS.mat2, label: 'Stone', caption: 'Raw permanence, quiet strength' },
+  { img: IMGS.mat3, label: 'Fabric', caption: 'Texture, comfort, color' },
+  { img: IMGS.mat4, label: 'Metal', caption: 'Precision, edge, reflection' },
+]
+
+function Materials() {
+  return (
+    <section className="py-24 md:py-36 bg-[#F5F1EB]">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="mb-16 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+          <SectionHeader
+            label="Craft"
+            heading="Details Matter."
+          />
+          <p className="text-[#9B9189] text-sm font-light leading-relaxed max-w-sm md:text-right">
+            We select every material with intention — each surface, texture, and finish chosen for how it reads in light and how it feels in life.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {MATERIALS.map((m, i) => (
+            <div key={m.label} className={`group cursor-pointer ${i === 1 ? 'mt-8' : i === 3 ? 'mt-4' : ''}`}>
+              <div className="img-zoom overflow-hidden bg-[#EDE8DF]">
+                <img
+                  src={m.img}
+                  alt={`${m.label} material detail`}
+                  className="w-full object-cover"
+                  style={{ height: i === 1 || i === 3 ? '420px' : '360px' }}
+                />
+              </div>
+              <div className="mt-3">
+                <p
+                  style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+                  className="text-[#1C1917] text-base font-medium"
+                >
+                  {m.label}
+                </p>
+                <p className="text-[#9B9189] text-xs font-light mt-0.5">{m.caption}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Testimonials ────────────────────────────────────────────────── */
+const TESTIMONIALS = [
+  {
+    quote: "Forma Studio didn't just design our home — they sculpted an experience. Every corner captures natural light beautifully, and the attention to custom joinery is extraordinary.",
+    name: 'Priya & Vikram Mehta',
+    project: 'Casa Verde',
+    location: 'Chennai, India',
+    role: 'Private Residence Client',
+  },
+  {
+    quote: "Working with Forma was transformative. They understood not just our brand architecture but our corporate ethos, crafting a flagship workspace that inspires our team every single day.",
+    name: 'Arjun Kapoor',
+    project: 'The Atelier',
+    location: 'Mumbai, India',
+    role: 'Founder & Managing Director',
+  },
+  {
+    quote: "The seamless blend of modern minimalism and warm, tactile materials completely redefined how we experience living. The team managed every single detail with precision and grace.",
+    name: 'Sophia & David Lin',
+    project: 'Villa Lumière',
+    location: 'Bengaluru, India',
+    role: 'Penthouse Residence',
+  },
+  {
+    quote: "From spatial flow to hand-selected stone slabs, Forma Studio brings an unprecedented level of sophistication. Guests walk into our hotel and instantly feel the serene atmosphere.",
+    name: 'Kavita Krishnamurthy',
+    project: 'Meridian Sanctuary',
+    location: 'Delhi, India',
+    role: 'Hospitality Client',
+  },
+  {
+    quote: "Forma Studio transformed our heritage property into a contemporary sanctuary while honoring its architectural soul. Their mastery of natural light and raw materiality is unmatched.",
+    name: 'Rohan & Ananya Roy',
+    project: 'Studio Blanc Residence',
+    location: 'Hyderabad, India',
+    role: 'Heritage Restoration',
+  },
+]
+
+function Testimonials() {
+  const [active, setActive] = useState(0)
+  const [isHovered, setIsHovered] = useState(false)
+
+  const handleNext = useCallback(() => {
+    setActive((prev) => (prev + 1) % TESTIMONIALS.length)
+  }, [])
+
+  const handlePrev = useCallback(() => {
+    setActive((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)
+  }, [])
+
+  useEffect(() => {
+    if (isHovered) return
+    const timer = setInterval(() => {
+      handleNext()
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [handleNext, isHovered])
+
+  const t = TESTIMONIALS[active]
+
+  return (
+    <section
+      className="py-24 md:py-36 bg-[#1C1917] relative overflow-hidden"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="flex items-center justify-between mb-16">
+          <div className="flex items-center gap-3">
+            <p className="text-[#B8956A] text-xs tracking-[0.25em] uppercase font-light">Client Words</p>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B8956A] animate-pulse" />
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[#F5F1EB]/40 text-xs tracking-widest font-mono">
+              {String(active + 1).padStart(2, '0')} / {String(TESTIMONIALS.length).padStart(2, '0')}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={handlePrev}
+                className="w-10 h-10 border border-[#F5F1EB]/20 text-[#F5F1EB] hover:border-[#B8956A] hover:text-[#B8956A] flex items-center justify-center transition-colors duration-200"
+                aria-label="Previous testimonial"
+              >
+                ←
+              </button>
+              <button
+                onClick={handleNext}
+                className="w-10 h-10 border border-[#F5F1EB]/20 text-[#F5F1EB] hover:border-[#B8956A] hover:text-[#B8956A] flex items-center justify-center transition-colors duration-200"
+                aria-label="Next testimonial"
+              >
+                →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-4xl">
+          <span
+            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+            className="text-[#F5F1EB]/10 text-[7rem] md:text-[9rem] leading-none block -mb-10 md:-mb-14 select-none pointer-events-none"
+          >
+            "
+          </span>
+          <div key={active} className="fade-up">
+            <blockquote
+              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+              className="text-[#F5F1EB] text-2xl md:text-4xl lg:text-5xl font-medium italic leading-tight mb-10 min-h-[160px] md:min-h-[130px]"
+            >
+              {t.quote}
+            </blockquote>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-6 border-t border-[#F5F1EB]/10">
+              <div>
+                <p className="text-[#F5F1EB] text-base font-medium tracking-wide">{t.name}</p>
+                <p className="text-[#9B9189] text-xs mt-1">{t.role} · {t.project} · {t.location}</p>
+              </div>
+              <div className="flex gap-2 items-center">
+                {TESTIMONIALS.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActive(i)}
+                    className="h-1 rounded-full relative overflow-hidden transition-all duration-300 bg-[#F5F1EB]/20"
+                    style={{ width: i === active ? '3rem' : '1rem' }}
+                    aria-label={`Testimonial ${i + 1}`}
+                  >
+                    {i === active && (
+                      <span
+                        key={`bar-${active}-${isHovered}`}
+                        className="absolute inset-0 bg-[#B8956A]"
+                        style={{
+                          animation: !isHovered ? 'progressFill 5s linear' : 'none',
+                        }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Journal ─────────────────────────────────────────────────────── */
+const ARTICLES = [
+  {
+    img: IMGS.journal1,
+    category: 'Material Selection',
+    title: 'On the Enduring Appeal of Natural Stone in Contemporary Interiors',
+    date: 'July 2026',
+    read: '6 min read',
+  },
+  {
+    img: IMGS.journal2,
+    category: 'Architecture',
+    title: 'How Light Transforms a Space — A Study in Aperture and Form',
+    date: 'June 2026',
+    read: '8 min read',
+  },
+  {
+    img: IMGS.journal3,
+    category: 'Behind the Scenes',
+    title: 'The Making of Casa Verde: From Brief to Completion',
+    date: 'May 2026',
+    read: '10 min read',
+  },
+]
+
+function Journal() {
+  return (
+    <section id="journal" className="py-24 md:py-36 bg-[#EDE8DF]">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16 gap-8">
+          <SectionHeader label="Insights" heading={"From Our\nJournal"} />
+          <a
+            href="#journal"
+            className="self-start md:self-end text-[#1C1917] text-xs tracking-[0.15em] uppercase border-b border-[#1C1917]/30 pb-0.5 hover:border-[#B8956A] hover:text-[#B8956A] transition-colors"
+          >
+            Read All Articles
+          </a>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+          {ARTICLES.map((a, i) => (
+            <article key={a.title} className={`group cursor-pointer ${i === 1 ? 'md:mt-10' : ''}`}>
+              <div className="img-zoom overflow-hidden bg-[#1C1917] mb-5">
+                <img
+                  src={a.img}
+                  alt={a.title}
+                  className="w-full h-52 object-cover group-hover:opacity-90 transition-opacity duration-300"
+                />
+              </div>
+              <p className="text-[#B8956A] text-xs tracking-[0.2em] uppercase mb-2">{a.category}</p>
+              <h3
+                style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+                className="text-[#1C1917] text-xl font-medium leading-snug mb-4 group-hover:text-[#B8956A] transition-colors duration-200"
+              >
+                {a.title}
+              </h3>
+              <div className="flex items-center gap-3 text-[#9B9189] text-xs">
+                <span>{a.date}</span>
+                <span className="w-1 h-1 rounded-full bg-[#9B9189]" />
+                <span>{a.read}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── CTA ─────────────────────────────────────────────────────────── */
+function CTA() {
+  return (
+    <section className="relative py-36 md:py-48 bg-[#1C1917] overflow-hidden">
+      <img
+        src={IMGS.cta}
+        alt="Interior space — an invitation to create"
+        className="absolute inset-0 w-full h-full object-cover opacity-20"
+      />
+      <div className="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 text-center">
+        <p className="text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light">Ready to Begin</p>
+        <h2
+          style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+          className="text-[#F5F1EB] text-4xl md:text-6xl lg:text-7xl font-medium leading-tight mb-6 max-w-3xl mx-auto"
+        >
+          Let's Create a Space That Feels Like{' '}
+          <em className="italic font-normal text-[#B8956A]">You.</em>
+        </h2>
+        <p className="text-[#F5F1EB]/50 text-base md:text-lg font-light mb-12 max-w-md mx-auto">
+          Have a space in mind? Tell us about your project.
+        </p>
+        <a
+          href="#contact"
+          className="inline-block bg-[#F5F1EB] text-[#1C1917] text-xs tracking-[0.15em] uppercase px-10 py-4 hover:bg-[#B8956A] hover:text-[#F5F1EB] transition-all duration-300"
+        >
+          Start a Conversation
+        </a>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Contact Form ────────────────────────────────────────────────── */
+function Contact() {
+  const [sent, setSent] = useState(false)
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setSent(true)
+  }
+
+  return (
+    <section id="contact" className="py-24 md:py-36 bg-[#F5F1EB]">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-16">
+          <div className="md:col-span-5">
+            <SectionHeader label="Get in Touch" heading={"Tell Us\nAbout Your\nProject."} />
+            <div className="space-y-4 text-sm text-[#9B9189] font-light">
+              <p>hello@formastudio.in</p>
+              <p>+91 44 0000 0000</p>
+              <p>Chennai · Mumbai · Bengaluru</p>
+            </div>
+            <div className="flex gap-6 mt-8">
+              {['Instagram', 'Pinterest', 'LinkedIn'].map((s) => (
+                <a key={s} href="#" className="text-[#9B9189] text-xs tracking-[0.1em] uppercase hover:text-[#B8956A] transition-colors duration-200">
+                  {s}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="md:col-span-6 md:col-start-7">
+            {sent ? (
+              <div className="flex items-center gap-4 py-8">
+                <div className="w-8 h-px bg-[#B8956A]" />
+                <p
+                  style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+                  className="text-[#1C1917] text-xl font-medium italic"
+                >
+                  Thank you. We'll be in touch soon.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {[
+                  { id: 'name', label: 'Your Name', type: 'text', placeholder: 'Priya Mehta' },
+                  { id: 'email', label: 'Email Address', type: 'email', placeholder: 'priya@example.com' },
+                  { id: 'project', label: 'Project Type', type: 'text', placeholder: 'Residential Interior, 3BHK' },
+                ].map((f) => (
+                  <div key={f.id}>
+                    <label htmlFor={f.id} className="block text-xs tracking-[0.12em] uppercase text-[#9B9189] mb-2">
+                      {f.label}
+                    </label>
+                    <input
+                      id={f.id}
+                      type={f.type}
+                      placeholder={f.placeholder}
+                      required
+                      className="w-full bg-transparent border-b border-[rgba(28,25,23,0.2)] py-3 text-[#1C1917] text-sm placeholder-[#9B9189]/50 focus:outline-none focus:border-[#B8956A] transition-colors duration-200"
+                    />
+                  </div>
+                ))}
+                <div>
+                  <label htmlFor="message" className="block text-xs tracking-[0.12em] uppercase text-[#9B9189] mb-2">
+                    Tell us about your project
+                  </label>
+                  <textarea
+                    id="message"
+                    rows={4}
+                    placeholder="Describe your space, timeline, and aspirations..."
+                    required
+                    className="w-full bg-transparent border-b border-[rgba(28,25,23,0.2)] py-3 text-[#1C1917] text-sm placeholder-[#9B9189]/50 focus:outline-none focus:border-[#B8956A] transition-colors duration-200 resize-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="mt-4 border border-[#1C1917] text-[#1C1917] text-xs tracking-[0.12em] uppercase px-8 py-3.5 hover:bg-[#1C1917] hover:text-[#F5F1EB] transition-all duration-300"
+                >
+                  Send Message
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────── */
+function Footer() {
+  const [email, setEmail] = useState('')
+  const [subscribed, setSubscribed] = useState(false)
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (email) {
+      setSubscribed(true)
+      setEmail('')
+    }
+  }
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  return (
+    <footer className="bg-[#1C1917] text-[#F5F1EB] pt-24 pb-12 border-t border-[#F5F1EB]/10 relative overflow-hidden">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-16">
+        
+        {/* Top Newsletter & Journal Subscription */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-20 border-b border-[#F5F1EB]/10 items-end">
+          <div className="lg:col-span-7">
+            <p className="text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-4 font-light">
+              Journal & Insights
+            </p>
+            <h3
+              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+              className="text-[#F5F1EB] text-3xl md:text-5xl font-medium leading-tight"
+            >
+              Stories on craft, material, <br className="hidden sm:block" />
+              and spatial design — in your inbox.
+            </h3>
+          </div>
+          <div className="lg:col-span-5">
+            {subscribed ? (
+              <div className="p-4 border border-[#B8956A]/50 bg-[#B8956A]/10 text-[#F5F1EB] text-sm font-light">
+                Thank you for subscribing to the FORMA Journal.
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  required
+                  className="bg-transparent border-b border-[#F5F1EB]/30 py-3 px-1 text-sm text-[#F5F1EB] placeholder-[#9B9189] focus:outline-none focus:border-[#B8956A] transition-colors flex-grow"
+                />
+                <button
+                  type="submit"
+                  className="bg-[#F5F1EB] text-[#1C1917] text-xs tracking-[0.15em] uppercase px-8 py-3.5 hover:bg-[#B8956A] hover:text-[#F5F1EB] transition-all duration-300 flex-shrink-0"
+                >
+                  Subscribe
+                </button>
+              </form>
+            )}
+            <p className="text-[#9B9189] text-xs mt-3 font-light">
+              Published quarterly. Unsubscribe at any time.
+            </p>
+          </div>
+        </div>
+
+        {/* Main Footer Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-10 py-20 border-b border-[#F5F1EB]/10">
+          {/* Brand Info */}
+          <div className="col-span-2 lg:col-span-4">
+            <a href="#" className="flex items-center gap-2 mb-6 group inline-block">
+              <span
+                style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+                className="text-[#F5F1EB] text-2xl font-medium tracking-tight"
+              >
+                FORMA
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#B8956A]" />
+              <span className="text-[#9B9189] text-xs tracking-[0.2em] uppercase font-light">
+                Studio
+              </span>
+            </a>
+            <p className="text-[#9B9189] text-sm font-light leading-relaxed max-w-sm mb-6">
+              A multidisciplinary interior design and architecture practice shaping residential, commercial, and hospitality environments.
+            </p>
+            <div className="flex items-center gap-2 text-[#B8956A] text-xs tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#B8956A] animate-pulse" />
+              <span>Accepting commissions for Q3/Q4 2026</span>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div className="lg:col-span-2 lg:col-start-6">
+            <p className="text-[#F5F1EB]/40 text-xs tracking-[0.25em] uppercase mb-6 font-mono">
+              Navigation
+            </p>
+            <ul className="space-y-3.5">
+              {NAV.map((n) => (
+                <li key={n.label}>
+                  <a
+                    href={n.href}
+                    className="text-[#9B9189] hover:text-[#F5F1EB] text-sm font-light transition-colors duration-200"
+                  >
+                    {n.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Expertise */}
+          <div className="lg:col-span-2">
+            <p className="text-[#F5F1EB]/40 text-xs tracking-[0.25em] uppercase mb-6 font-mono">
+              Expertise
+            </p>
+            <ul className="space-y-3.5">
+              {[
+                'Residential Interiors',
+                'Commercial Spaces',
+                'Hospitality Design',
+                'Space Planning',
+                'Custom Furniture',
+                'Material Curation',
+              ].map((s) => (
+                <li key={s}>
+                  <a
+                    href="#services"
+                    className="text-[#9B9189] hover:text-[#F5F1EB] text-sm font-light transition-colors duration-200"
+                  >
+                    {s}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Studio Offices & Direct Contacts */}
+          <div className="col-span-2 lg:col-span-3">
+            <p className="text-[#F5F1EB]/40 text-xs tracking-[0.25em] uppercase mb-6 font-mono">
+              Studios
+            </p>
+            <div className="space-y-4 text-sm font-light">
+              <div>
+                <p className="text-[#F5F1EB] font-medium text-xs tracking-wider uppercase mb-1">Chennai Studio</p>
+                <p className="text-[#9B9189]">42 Kasturi Ranga Road, Alwarpet</p>
+              </div>
+              <div>
+                <p className="text-[#F5F1EB] font-medium text-xs tracking-wider uppercase mb-1">Mumbai Studio</p>
+                <p className="text-[#9B9189]">12 Worli Sea Face, Worli</p>
+              </div>
+              <div className="pt-2">
+                <p className="text-[#F5F1EB] font-medium text-xs tracking-wider uppercase mb-1">Direct Contact</p>
+                <a href="mailto:hello@formastudio.in" className="text-[#B8956A] hover:underline block">
+                  hello@formastudio.in
+                </a>
+                <p className="text-[#9B9189] mt-0.5">+91 44 4500 8900</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Social Links Bar */}
+        <div className="py-8 border-b border-[#F5F1EB]/10 flex flex-wrap items-center justify-between gap-6">
+          <div className="flex flex-wrap items-center gap-8">
+            <span className="text-[#F5F1EB]/40 text-xs tracking-[0.2em] uppercase font-mono">Connect</span>
+            {[
+              { label: 'Instagram', href: 'https://instagram.com' },
+              { label: 'Pinterest', href: 'https://pinterest.com' },
+              { label: 'LinkedIn', href: 'https://linkedin.com' },
+              { label: 'ArchDaily', href: '#' },
+              { label: 'Behance', href: '#' },
+            ].map((soc) => (
+              <a
+                key={soc.label}
+                href={soc.href}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[#9B9189] hover:text-[#B8956A] text-xs tracking-wider transition-colors duration-200"
+              >
+                {soc.label} ↗
+              </a>
+            ))}
+          </div>
+
+          <button
+            onClick={scrollToTop}
+            className="flex items-center gap-2 text-[#9B9189] hover:text-[#F5F1EB] text-xs tracking-[0.15em] uppercase transition-colors duration-200 group"
+          >
+            <span>Back to Top</span>
+            <span className="group-hover:-translate-y-1 transition-transform duration-200">↑</span>
+          </button>
+        </div>
+
+        {/* Oversized Architectural Branding */}
+        <div className="py-12 text-center select-none opacity-15 hover:opacity-25 transition-opacity duration-500">
+          <h2
+            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+            className="text-[#F5F1EB] text-6xl sm:text-8xl md:text-[10rem] lg:text-[13rem] font-medium tracking-tighter leading-none"
+          >
+            FORMA
+          </h2>
+        </div>
+
+        {/* Bottom Rights & Legal */}
+        <div className="pt-6 border-t border-[#F5F1EB]/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#9B9189]/60 font-light">
+          <p>© {new Date().getFullYear()} FORMA Studio Pvt. Ltd. All rights reserved.</p>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-[#9B9189] transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-[#9B9189] transition-colors">Terms of Architectural Service</a>
+            <a href="#" className="hover:text-[#9B9189] transition-colors">Cookie Preferences</a>
+          </div>
+        </div>
+
+      </div>
+    </footer>
+  )
+}
+
+/* ─── App ─────────────────────────────────────────────────────────── */
+export default function App() {
+  return (
+    <div className="min-h-screen">
+      <Navigation />
+      <Hero />
+      <SelectedWork />
+      <ProjectDetail />
+      <Services />
+      <Philosophy />
+      <Process />
+      <About />
+      <Materials />
+      <Testimonials />
+      <Journal />
+      <CTA />
+      <Contact />
+      <Footer />
+    </div>
+  )
+}
