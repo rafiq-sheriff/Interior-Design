@@ -51,7 +51,7 @@ export const COLOR_PALETTES: ThemeOption[] = [
 ]
 
 /* ─── Navigation ──────────────────────────────────────────────────── */
-function Navigation() {
+function Navigation({ showContent }: { showContent: boolean }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -64,8 +64,11 @@ function Navigation() {
   return (
     <nav
       style={{ fontFamily: 'Instrument Sans, system-ui, sans-serif' }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-[#F5F1EB]/95 backdrop-blur-sm border-b border-[rgba(28,25,23,0.1)]' : 'bg-transparent'
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 cubic-bezier(0.16,1,0.3,1) ${
+        showContent ? 'translate-y-0 opacity-100' : '-translate-y-6 opacity-0 pointer-events-none'
+      } ${
+        scrolled ? 'bg-[#F5F1EB]/95 backdrop-blur-sm border-b border-[rgba(28,25,23,0.1)]' : 'bg-transparent'
+      }`}
     >
       <div className="max-w-[1440px] mx-auto px-8 md:px-16 flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
@@ -76,13 +79,6 @@ function Navigation() {
               }`}
           >
             FORMA
-          </span>
-          <span
-            className="w-1 h-1 rounded-full bg-[#B8956A] mt-0.5"
-          />
-          <span className={`text-xs tracking-[0.2em] uppercase font-light hidden sm:block transition-colors duration-300 ${scrolled ? 'text-[#9B9189]' : 'text-[#F5F1EB]/70'
-            }`}>
-            Studio
           </span>
         </a>
 
@@ -155,9 +151,11 @@ function Navigation() {
 
 /* ─── Hero ────────────────────────────────────────────────────────── */
 function Hero({
+  showContent,
   onVideoReady,
   onVideoProgress,
 }: {
+  showContent: boolean
   onVideoReady?: () => void
   onVideoProgress?: (progress: number) => void
 }) {
@@ -247,27 +245,49 @@ function Hero({
       {/* Dark vignette */}
       <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/50 pointer-events-none z-1" />
 
-      {/* Content */}
+      {/* Content with Staggered Entrance Animations */}
       <div className="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 py-20 md:py-28 w-full flex flex-col items-center text-center">
         <div className="max-w-4xl flex flex-col items-center text-center">
-          <p className="text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light">
-            Interior Design & Architecture Studio
+          
+          {/* 1. Category Label */}
+          <p
+            className={`text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light transition-all duration-1000 ease-out delay-200 ${
+              showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+          >
+            Interior Design & Architecture Practice
           </p>
+
+          {/* 2. Headline */}
           <h1
             style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            className="text-[#F5F1EB] text-5xl md:text-7xl lg:text-8xl font-medium leading-[1.05] mb-6"
+            className={`text-[#F5F1EB] text-5xl md:text-7xl lg:text-8xl font-medium leading-[1.05] mb-6 transition-all duration-1000 ease-out delay-400 ${
+              showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.98]'
+            }`}
           >
             Spaces Designed
             <br />
-            <em className="italic font-normal">Around You</em>
+            <em className="italic font-normal text-[#B8956A]">Around You</em>
           </h1>
-          <p className="text-[#F5F1EB]/60 text-base md:text-lg font-light leading-relaxed mb-10 max-w-none md:whitespace-nowrap mx-auto">
+
+          {/* 3. Subtitle */}
+          <p
+            className={`text-[#F5F1EB]/70 text-base md:text-lg font-light leading-relaxed mb-10 max-w-none md:whitespace-nowrap mx-auto transition-all duration-1000 ease-out delay-600 ${
+              showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+          >
             Thoughtful interiors shaped by architecture, material, and the way you live
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+
+          {/* 4. CTAs */}
+          <div
+            className={`flex flex-wrap justify-center gap-4 transition-all duration-1000 ease-out delay-800 ${
+              showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+          >
             <a
               href="#work"
-              className="bg-[#F5F1EB] text-[#1C1917] text-xs tracking-[0.12em] uppercase px-8 py-3.5 hover:bg-[#B8956A] hover:text-[#F5F1EB] transition-all duration-300"
+              className="bg-[#F5F1EB] text-[#1C1917] text-xs tracking-[0.12em] uppercase px-8 py-3.5 hover:bg-[#B8956A] hover:text-[#F5F1EB] transition-all duration-300 shadow-xl"
             >
               Explore Our Work
             </a>
@@ -278,6 +298,7 @@ function Hero({
               Start a Project
             </a>
           </div>
+
         </div>
       </div>
     </section>
@@ -853,7 +874,7 @@ function Philosophy() {
             </p>
             <div className="mt-12 flex items-center gap-4">
               <div className="w-12 h-px bg-[#B8956A]" />
-              <p className="text-[#F5F1EB]/30 text-xs tracking-[0.15em] uppercase font-light">Forma Studio</p>
+              <p className="text-[#F5F1EB]/30 text-xs tracking-[0.15em] uppercase font-light">FORMA</p>
             </div>
           </div>
           <div className="md:col-span-6 lg:col-span-7 img-zoom">
@@ -954,7 +975,7 @@ function About() {
               heading={"Spaces With\nCharacter."}
             />
             <p className="text-[#1C1917]/70 text-base font-light leading-relaxed mb-6">
-              Forma Studio is a multidisciplinary interior design and architecture practice founded on the belief
+              FORMA is a multidisciplinary interior design and architecture practice founded on the belief
               that every space has a story waiting to be told. We work across residential, commercial, and
               hospitality typologies — bringing the same level of care and craft to each project.
             </p>
@@ -1038,7 +1059,7 @@ function Materials() {
 /* ─── Testimonials ────────────────────────────────────────────────── */
 const TESTIMONIALS = [
   {
-    quote: "Forma Studio didn't just design our home — they sculpted an experience. Every corner captures natural light beautifully, and the attention to custom joinery is extraordinary.",
+    quote: "FORMA didn't just design our home — they sculpted an experience. Every corner captures natural light beautifully, and the attention to custom joinery is extraordinary.",
     name: 'Priya & Vikram Mehta',
     project: 'Casa Verde',
     location: 'Chennai, India',
@@ -1441,10 +1462,6 @@ function Footer() {
               >
                 FORMA
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#B8956A]" />
-              <span className="text-[#9B9189] text-xs tracking-[0.2em] uppercase font-light">
-                Studio
-              </span>
             </a>
             <p className="text-[#9B9189] text-sm font-light leading-relaxed max-w-sm mb-6">
               A multidisciplinary interior design and architecture practice shaping residential, commercial, and hospitality environments.
@@ -1569,7 +1586,7 @@ function Footer() {
 
         {/* Bottom Rights & Legal */}
         <div className="pt-6 border-t border-[#F5F1EB]/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#9B9189]/60 font-light">
-          <p>© {new Date().getFullYear()} FORMA Studio Pvt. Ltd. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} FORMA Pvt. Ltd. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-[#9B9189] transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-[#9B9189] transition-colors">Terms of Architectural Service</a>
@@ -1586,9 +1603,11 @@ function Footer() {
 function Preloader({
   isVideoReady,
   videoDownloadPercent,
+  onComplete,
 }: {
   isVideoReady: boolean
   videoDownloadPercent: number
+  onComplete?: () => void
 }) {
   const [progress, setProgress] = useState(0)
   const [loadingTextIndex, setLoadingTextIndex] = useState(0)
@@ -1613,7 +1632,7 @@ function Preloader({
     'Curating Materials & Textures',
     'Downloading Cinema Video',
     'Spaces Designed Around You',
-    'Welcome to FORMA Studio',
+    'Welcome to FORMA',
   ]
 
   useEffect(() => {
@@ -1660,6 +1679,7 @@ function Preloader({
       const timer = setTimeout(() => {
         setIsFinished(true)
         document.body.style.overflow = ''
+        if (onComplete) onComplete()
       }, 400)
 
       const removeTimer = setTimeout(() => {
@@ -1672,7 +1692,7 @@ function Preloader({
         clearTimeout(removeTimer)
       }
     }
-  }, [progress])
+  }, [progress, onComplete])
 
   if (isDone) return null
 
@@ -1687,7 +1707,7 @@ function Preloader({
       <div className="flex items-center justify-between text-xs tracking-[0.2em] uppercase font-mono" style={{ color: `${theme.text}60` }}>
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: theme.accent }} />
-          <span>FORMA Studio</span>
+          <span>FORMA</span>
         </div>
         <span>Architecture & Interior</span>
       </div>
@@ -1699,7 +1719,6 @@ function Preloader({
           className="text-6xl md:text-8xl lg:text-9xl font-medium tracking-tight mb-6"
         >
           FORMA
-          <span className="inline-block w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ml-2" style={{ backgroundColor: theme.accent }} />
         </h1>
 
         {/* Dynamic phrase reveal */}
@@ -1741,12 +1760,18 @@ function Preloader({
 export default function App() {
   const [isVideoReady, setIsVideoReady] = useState(false)
   const [videoDownloadPercent, setVideoDownloadPercent] = useState(0)
+  const [isPreloaderFinished, setIsPreloaderFinished] = useState(false)
 
   return (
     <div className="min-h-screen">
-      <Preloader isVideoReady={isVideoReady} videoDownloadPercent={videoDownloadPercent} />
-      <Navigation />
+      <Preloader
+        isVideoReady={isVideoReady}
+        videoDownloadPercent={videoDownloadPercent}
+        onComplete={() => setIsPreloaderFinished(true)}
+      />
+      <Navigation showContent={isPreloaderFinished} />
       <Hero
+        showContent={isPreloaderFinished}
         onVideoReady={() => setIsVideoReady(true)}
         onVideoProgress={(pct) => setVideoDownloadPercent(pct)}
       />
