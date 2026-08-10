@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-const heroVideo = '/assets/video/hero/hero.mp4'
+const heroVideo = '/assets/video/hero/hero1.mp4'
 
 /* ─── Image helpers ───────────────────────────────────────────────── */
 const IMGS = {
