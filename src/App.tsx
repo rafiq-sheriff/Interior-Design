@@ -162,7 +162,21 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
     if (v) {
       v.muted = true
       v.defaultMuted = true
-      v.play().catch(() => {})
+      v.playsInline = true
+      const playPromise = v.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          const enablePlay = () => {
+            v.play()
+            window.removeEventListener('click', enablePlay)
+            window.removeEventListener('touchstart', enablePlay)
+            window.removeEventListener('scroll', enablePlay)
+          }
+          window.addEventListener('click', enablePlay)
+          window.addEventListener('touchstart', enablePlay)
+          window.addEventListener('scroll', enablePlay)
+        })
+      }
     }
     if (onVideoReady) {
       onVideoReady()
@@ -175,14 +189,15 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
       v.muted = true
       v.defaultMuted = true
       v.playsInline = true
-      v.play().catch(() => {})
+      
+      handleVideoReady()
 
-      // Unlock preloader after max 3.5s safety window
+      // Safety timer: unlock preloader after max 2.5s window
       const safetyTimer = setTimeout(() => {
         if (onVideoReady) onVideoReady()
-      }, 3500)
+      }, 2500)
 
-      if (v.readyState >= 2) {
+      if (v.readyState >= 1) {
         handleVideoReady()
       }
 
@@ -201,13 +216,17 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+        className="absolute inset-0 w-full h-full object-cover z-0"
         onCanPlay={handleVideoReady}
         onCanPlayThrough={handleVideoReady}
         onLoadedData={handleVideoReady}
-      />
+        onLoadedMetadata={handleVideoReady}
+        onPlay={() => onVideoReady?.()}
+      >
+        <source src={heroVideo} type="video/mp4" />
+      </video>
       {/* Dark vignette */}
-      <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/50 pointer-events-none" />
+      <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/50 pointer-events-none z-1" />
 
       {/* Content */}
       <div className="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 py-20 md:py-28 w-full flex flex-col items-center text-center">
