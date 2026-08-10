@@ -1595,6 +1595,17 @@ function Preloader({
   const [isFinished, setIsFinished] = useState(false)
   const [isDone, setIsDone] = useState(false)
 
+  const isVideoReadyRef = useRef(isVideoReady)
+  const videoDownloadPercentRef = useRef(videoDownloadPercent)
+
+  useEffect(() => {
+    isVideoReadyRef.current = isVideoReady
+  }, [isVideoReady])
+
+  useEffect(() => {
+    videoDownloadPercentRef.current = videoDownloadPercent
+  }, [videoDownloadPercent])
+
   const theme = { bg: '#1C1917', text: '#F5F1EB', accent: '#B8956A', sub: '#9B9189' }
 
   const loadingPhrases = [
@@ -1610,25 +1621,33 @@ function Preloader({
 
     const interval = setInterval(() => {
       setProgress((prev) => {
-        let cap = 92
-        if (videoDownloadPercent > 0) {
-          cap = Math.min(95, videoDownloadPercent)
-        }
-
-        if (prev >= cap && !isVideoReady) {
-          return cap
-        }
         if (prev >= 100) {
           clearInterval(interval)
           return 100
         }
+
+        const ready = isVideoReadyRef.current
+        const pct = videoDownloadPercentRef.current
+
+        let cap = 92
+        if (pct > 0) {
+          cap = Math.min(95, Math.max(prev, pct))
+        }
+
+        if (prev >= cap && !ready) {
+          return cap
+        }
+
         const diff = Math.floor(Math.random() * 3) + 2
         return Math.min(prev + diff, 100)
       })
-    }, 45)
+    }, 40)
 
-    return () => clearInterval(interval)
-  }, [isVideoReady, videoDownloadPercent])
+    return () => {
+      clearInterval(interval)
+      document.body.style.overflow = ''
+    }
+  }, [])
 
   useEffect(() => {
     if (progress < 25) setLoadingTextIndex(0)
@@ -1640,6 +1659,7 @@ function Preloader({
     if (progress === 100) {
       const timer = setTimeout(() => {
         setIsFinished(true)
+        document.body.style.overflow = ''
       }, 400)
 
       const removeTimer = setTimeout(() => {
