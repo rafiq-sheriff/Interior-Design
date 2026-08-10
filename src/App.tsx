@@ -141,10 +141,13 @@ function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = true
-      videoRef.current.play().catch(() => {
-        // Autoplay fallback handling
+    const v = videoRef.current
+    if (v) {
+      v.muted = true
+      v.defaultMuted = true
+      v.play().catch(() => {
+        v.muted = true
+        v.play().catch(() => {})
       })
     }
   }, [])
@@ -153,12 +156,21 @@ function Hero() {
     <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
       <video
         ref={videoRef}
+        src="/assets/video/hero/hero.mp4"
         autoPlay
         loop
         muted
         playsInline
-        poster={IMGS.hero}
+        preload="auto"
         className="absolute inset-0 w-full h-full object-cover opacity-80"
+        onCanPlay={(e) => {
+          e.currentTarget.muted = true
+          e.currentTarget.play().catch(() => {})
+        }}
+        onLoadedData={(e) => {
+          e.currentTarget.muted = true
+          e.currentTarget.play().catch(() => {})
+        }}
       >
         <source src="/assets/video/hero/hero.mp4" type="video/mp4" />
       </video>
@@ -180,7 +192,7 @@ function Hero() {
             <em className="italic font-normal">Around You</em>
           </h1>
           <p className="text-[#F5F1EB]/60 text-base md:text-lg font-light leading-relaxed mb-10 max-w-none md:whitespace-nowrap mx-auto">
-            Thoughtful interiors shaped by architecture, material, and the way you live.
+            Thoughtful interiors shaped by architecture, material, and the way you live
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
@@ -544,7 +556,7 @@ function SelectedWork() {
           <SectionHeader
             label="Selected Portfolio"
             heading={"Spaces Designed\nWith Purpose."}
-            sub="Explore our curated architectural and interior commissions across India."
+            sub="Explore our curated architectural and interior commissions across India"
           />
           
           {/* Category Filter Pills */}

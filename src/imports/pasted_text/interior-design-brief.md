@@ -60,7 +60,7 @@ Headline:
 "Spaces Designed Around You"
 
 Supporting text:
-"Thoughtful interiors shaped by architecture, material, and the way you live."
+"Thoughtful interiors shaped by architecture, material, and the way you live"
 
 CTA buttons:
 "Explore Our Work"
