@@ -137,20 +137,39 @@ function Navigation() {
 }
 
 /* ─── Hero ────────────────────────────────────────────────────────── */
-function Hero() {
+function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
+
+  const handleVideoReady = useCallback(() => {
+    const v = videoRef.current
+    if (v) {
+      v.muted = true
+      v.defaultMuted = true
+      v.play().catch(() => {})
+    }
+    if (onVideoReady) {
+      onVideoReady()
+    }
+  }, [onVideoReady])
 
   useEffect(() => {
     const v = videoRef.current
     if (v) {
       v.muted = true
       v.defaultMuted = true
-      v.play().catch(() => {
-        v.muted = true
-        v.play().catch(() => {})
-      })
+
+      // Safety timeout: unlock preloader after 5.5s if network is very slow
+      const safetyTimer = setTimeout(() => {
+        if (onVideoReady) onVideoReady()
+      }, 5500)
+
+      if (v.readyState >= 3) {
+        handleVideoReady()
+      }
+
+      return () => clearTimeout(safetyTimer)
     }
-  }, [])
+  }, [handleVideoReady, onVideoReady])
 
   return (
     <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
@@ -164,14 +183,9 @@ function Hero() {
         playsInline
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover opacity-85 transition-opacity duration-1000"
-        onCanPlay={(e) => {
-          e.currentTarget.muted = true
-          e.currentTarget.play().catch(() => {})
-        }}
-        onLoadedData={(e) => {
-          e.currentTarget.muted = true
-          e.currentTarget.play().catch(() => {})
-        }}
+        onCanPlay={handleVideoReady}
+        onCanPlayThrough={handleVideoReady}
+        onLoadedData={handleVideoReady}
       >
         <source src={heroVideo} type="video/mp4" />
       </video>
@@ -1514,7 +1528,7 @@ function Footer() {
 }
 
 /* ─── Preloader ────────────────────────────────────────────────────── */
-function Preloader() {
+function Preloader({ theme, isVideoReady }: { theme: ThemeOption; isVideoReady: boolean }) {
   const [progress, setProgress] = useState(0)
   const [loadingTextIndex, setLoadingTextIndex] = useState(0)
   const [isFinished, setIsFinished] = useState(false)
@@ -1523,6 +1537,7 @@ function Preloader() {
   const loadingPhrases = [
     'Architectural Form & Light',
     'Curating Materials & Textures',
+    'Buffering Cinema Video',
     'Spaces Designed Around You',
     'Welcome to FORMA Studio',
   ]
@@ -1532,6 +1547,9 @@ function Preloader() {
 
     const interval = setInterval(() => {
       setProgress((prev) => {
+        if (prev >= 92 && !isVideoReady) {
+          return 92
+        }
         if (prev >= 100) {
           clearInterval(interval)
           return 100
@@ -1539,16 +1557,17 @@ function Preloader() {
         const diff = Math.floor(Math.random() * 3) + 2
         return Math.min(prev + diff, 100)
       })
-    }, 65)
+    }, 55)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [isVideoReady])
 
   useEffect(() => {
-    if (progress < 30) setLoadingTextIndex(0)
-    else if (progress < 65) setLoadingTextIndex(1)
-    else if (progress < 99) setLoadingTextIndex(2)
-    else setLoadingTextIndex(3)
+    if (progress < 25) setLoadingTextIndex(0)
+    else if (progress < 50) setLoadingTextIndex(1)
+    else if (progress < 80) setLoadingTextIndex(2)
+    else if (progress < 99) setLoadingTextIndex(3)
+    else setLoadingTextIndex(4)
 
     if (progress === 100) {
       const timer = setTimeout(() => {
@@ -1571,13 +1590,15 @@ function Preloader() {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-[#1C1917] flex flex-col justify-between p-8 md:p-16 transition-all duration-1000 cubic-bezier(0.77,0,0.175,1) ${isFinished ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
-        }`}
+      style={{ backgroundColor: theme.bg }}
+      className={`fixed inset-0 z-[100] flex flex-col justify-between p-8 md:p-16 transition-all duration-1000 cubic-bezier(0.77,0,0.175,1) ${
+        isFinished ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+      }`}
     >
       {/* Top Bar */}
-      <div className="flex items-center justify-between text-[#F5F1EB]/40 text-xs tracking-[0.2em] uppercase font-mono">
+      <div className="flex items-center justify-between text-xs tracking-[0.2em] uppercase font-mono" style={{ color: `${theme.text}60` }}>
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#B8956A] animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: theme.accent }} />
           <span>FORMA Studio</span>
         </div>
         <span>Architecture & Interior</span>
@@ -1586,18 +1607,19 @@ function Preloader() {
       {/* Center Brand & Phrase */}
       <div className="max-w-4xl mx-auto w-full text-center flex flex-col items-center justify-center my-auto py-12">
         <h1
-          style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-          className="text-[#F5F1EB] text-6xl md:text-8xl lg:text-9xl font-medium tracking-tight mb-6"
+          style={{ fontFamily: 'Playfair Display, Georgia, serif', color: theme.text }}
+          className="text-6xl md:text-8xl lg:text-9xl font-medium tracking-tight mb-6"
         >
           FORMA
-          <span className="inline-block w-2.5 h-2.5 md:w-4 md:h-4 rounded-full bg-[#B8956A] ml-2" />
+          <span className="inline-block w-2.5 h-2.5 md:w-4 md:h-4 rounded-full ml-2" style={{ backgroundColor: theme.accent }} />
         </h1>
 
         {/* Dynamic phrase reveal */}
         <div className="h-8 overflow-hidden relative">
           <p
             key={loadingTextIndex}
-            className="text-[#B8956A] text-xs md:text-sm tracking-[0.3em] uppercase font-light fade-up"
+            style={{ color: theme.accent }}
+            className="text-xs md:text-sm tracking-[0.3em] uppercase font-light fade-up"
           >
             {loadingPhrases[loadingTextIndex]}
           </p>
@@ -1606,20 +1628,20 @@ function Preloader() {
 
       {/* Bottom Counter & Hairline Progress */}
       <div className="w-full max-w-[1440px] mx-auto">
-        <div className="flex items-end justify-between mb-4 text-[#F5F1EB] font-mono">
-          <span className="text-[#9B9189] text-xs tracking-widest uppercase">
-            Loading Experience
+        <div className="flex items-end justify-between mb-4 font-mono" style={{ color: theme.text }}>
+          <span className="text-xs tracking-widest uppercase" style={{ color: theme.sub }}>
+            {isVideoReady ? 'Video Ready • Finalizing' : 'Downloading Cinema Video'}
           </span>
-          <span className="text-3xl md:text-5xl font-light text-[#F5F1EB]">
+          <span className="text-3xl md:text-5xl font-light" style={{ color: theme.text }}>
             {String(progress).padStart(2, '0')}%
           </span>
         </div>
 
-        {/* Hairline Gold Progress Bar */}
-        <div className="w-full h-0.5 bg-[#F5F1EB]/10 relative overflow-hidden rounded-full">
+        {/* Hairline Progress Bar */}
+        <div className="w-full h-0.5 relative overflow-hidden rounded-full" style={{ backgroundColor: `${theme.text}20` }}>
           <div
-            className="h-full bg-[#B8956A] transition-all duration-200 ease-out"
-            style={{ width: `${progress}%` }}
+            className="h-full transition-all duration-200 ease-out"
+            style={{ width: `${progress}%`, backgroundColor: theme.accent }}
           />
         </div>
       </div>
@@ -1629,11 +1651,25 @@ function Preloader() {
 
 /* ─── App ─────────────────────────────────────────────────────────── */
 export default function App() {
+  const [activeTheme, setActiveTheme] = useState(COLOR_PALETTES[0])
+  const [preloaderKey, setPreloaderKey] = useState(0)
+  const [isVideoReady, setIsVideoReady] = useState(false)
+
+  const handleReplayPreloader = () => {
+    setIsVideoReady(false)
+    setPreloaderKey((prev) => prev + 1)
+  }
+
   return (
     <div className="min-h-screen">
-      <Preloader />
+      <Preloader key={preloaderKey} theme={activeTheme} isVideoReady={isVideoReady} />
+      <ThemeSwitcher
+        activeTheme={activeTheme}
+        onSelectTheme={setActiveTheme}
+        onReplayPreloader={handleReplayPreloader}
+      />
       <Navigation />
-      <Hero />
+      <Hero onVideoReady={() => setIsVideoReady(true)} />
       <SelectedWork />
       <ProjectDetail />
       <Services />
