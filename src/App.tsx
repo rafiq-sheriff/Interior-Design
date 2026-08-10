@@ -4,7 +4,6 @@ const heroVideo = '/assets/video/hero/hero.mp4'
 
 /* ─── Image helpers ───────────────────────────────────────────────── */
 const IMGS = {
-  hero: 'https://images.unsplash.com/photo-1757924461488-ef9ad0670978?w=1800&h=1000&fit=crop&auto=format',
   proj1: 'https://images.unsplash.com/photo-1648881806148-e5c51179c826?w=900&h=700&fit=crop&auto=format',
   proj2: 'https://images.unsplash.com/photo-1688647063090-36f36f692d95?w=700&h=900&fit=crop&auto=format',
   proj3: 'https://images.unsplash.com/photo-1745301558339-44eb3217d5da?w=900&h=600&fit=crop&auto=format',
@@ -175,13 +174,15 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
     if (v) {
       v.muted = true
       v.defaultMuted = true
+      v.playsInline = true
+      v.play().catch(() => {})
 
-      // Safety timeout: unlock preloader after 5.5s if network is very slow
+      // Unlock preloader after max 3.5s safety window
       const safetyTimer = setTimeout(() => {
         if (onVideoReady) onVideoReady()
-      }, 5500)
+      }, 3500)
 
-      if (v.readyState >= 3) {
+      if (v.readyState >= 2) {
         handleVideoReady()
       }
 
@@ -191,7 +192,7 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
 
   return (
     <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
-      {/* Video layer - continuous loop without background image fallback */}
+      {/* Video layer - continuous background video loop */}
       <video
         ref={videoRef}
         src={heroVideo}
@@ -200,13 +201,11 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover opacity-85 transition-opacity duration-1000"
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
         onCanPlay={handleVideoReady}
         onCanPlayThrough={handleVideoReady}
         onLoadedData={handleVideoReady}
-      >
-        <source src={heroVideo} type="video/mp4" />
-      </video>
+      />
       {/* Dark vignette */}
       <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/50 pointer-events-none" />
 
@@ -1545,66 +1544,14 @@ function Footer() {
   )
 }
 
-/* ─── Theme Switcher ───────────────────────────────────────────────── */
-function ThemeSwitcher({
-  activeTheme,
-  onSelectTheme,
-  onReplayPreloader,
-}: {
-  activeTheme: ThemeOption
-  onSelectTheme: (t: ThemeOption) => void
-  onReplayPreloader: () => void
-}) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2 font-sans select-none">
-      {open && (
-        <div className="bg-[#1C1917]/95 backdrop-blur-md border border-[#F5F1EB]/15 p-4 rounded-xl shadow-2xl flex flex-col gap-3 min-w-[220px] text-xs text-[#F5F1EB] animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div className="flex items-center justify-between border-b border-[#F5F1EB]/10 pb-2">
-            <span className="font-medium tracking-wider uppercase text-[10px] text-[#B8956A]">Theme Studio</span>
-            <button
-              onClick={onReplayPreloader}
-              className="text-[10px] tracking-wider text-[#9B9189] hover:text-[#F5F1EB] transition-colors"
-            >
-              Replay Intro ↺
-            </button>
-          </div>
-          <div className="space-y-1.5">
-            {COLOR_PALETTES.map((palette) => (
-              <button
-                key={palette.id}
-                onClick={() => onSelectTheme(palette)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-all ${
-                  activeTheme.id === palette.id
-                    ? 'bg-[#F5F1EB]/15 text-[#F5F1EB] font-medium'
-                    : 'hover:bg-[#F5F1EB]/5 text-[#9B9189] hover:text-[#F5F1EB]'
-                }`}
-              >
-                <span>{palette.name}</span>
-                <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: palette.accent }} />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-12 h-12 rounded-full bg-[#1C1917]/85 backdrop-blur-md border border-[#F5F1EB]/20 shadow-lg flex items-center justify-center text-[#F5F1EB] hover:scale-105 active:scale-95 transition-all duration-300 group"
-        aria-label="Theme Studio"
-      >
-        <span className="w-4 h-4 rounded-full border border-white/40 group-hover:rotate-180 transition-transform duration-500" style={{ backgroundColor: activeTheme.accent }} />
-      </button>
-    </div>
-  )
-}
-
 /* ─── Preloader ────────────────────────────────────────────────────── */
-function Preloader({ theme, isVideoReady }: { theme: ThemeOption; isVideoReady: boolean }) {
+function Preloader({ isVideoReady }: { isVideoReady: boolean }) {
   const [progress, setProgress] = useState(0)
   const [loadingTextIndex, setLoadingTextIndex] = useState(0)
   const [isFinished, setIsFinished] = useState(false)
   const [isDone, setIsDone] = useState(false)
+
+  const theme = { bg: '#1C1917', text: '#F5F1EB', accent: '#B8956A', sub: '#9B9189' }
 
   const loadingPhrases = [
     'Architectural Form & Light',
@@ -1629,7 +1576,7 @@ function Preloader({ theme, isVideoReady }: { theme: ThemeOption; isVideoReady: 
         const diff = Math.floor(Math.random() * 3) + 2
         return Math.min(prev + diff, 100)
       })
-    }, 55)
+    }, 45)
 
     return () => clearInterval(interval)
   }, [isVideoReady])
@@ -1644,12 +1591,12 @@ function Preloader({ theme, isVideoReady }: { theme: ThemeOption; isVideoReady: 
     if (progress === 100) {
       const timer = setTimeout(() => {
         setIsFinished(true)
-      }, 550)
+      }, 400)
 
       const removeTimer = setTimeout(() => {
         setIsDone(true)
         document.body.style.overflow = ''
-      }, 1600)
+      }, 1400)
 
       return () => {
         clearTimeout(timer)
@@ -1723,23 +1670,11 @@ function Preloader({ theme, isVideoReady }: { theme: ThemeOption; isVideoReady: 
 
 /* ─── App ─────────────────────────────────────────────────────────── */
 export default function App() {
-  const [activeTheme, setActiveTheme] = useState(COLOR_PALETTES[0])
-  const [preloaderKey, setPreloaderKey] = useState(0)
   const [isVideoReady, setIsVideoReady] = useState(false)
-
-  const handleReplayPreloader = () => {
-    setIsVideoReady(false)
-    setPreloaderKey((prev) => prev + 1)
-  }
 
   return (
     <div className="min-h-screen">
-      <Preloader key={preloaderKey} theme={activeTheme} isVideoReady={isVideoReady} />
-      <ThemeSwitcher
-        activeTheme={activeTheme}
-        onSelectTheme={setActiveTheme}
-        onReplayPreloader={handleReplayPreloader}
-      />
+      <Preloader isVideoReady={isVideoReady} />
       <Navigation />
       <Hero onVideoReady={() => setIsVideoReady(true)} />
       <SelectedWork />
