@@ -25,7 +25,7 @@ const IMGS = {
   cta: 'https://images.unsplash.com/photo-1757924461488-ef9ad0670978?w=1600&h=900&fit=crop&auto=format',
 }
 
-/* ─── Types ───────────────────────────────────────────────────────── */
+/* ─── Types & Themes ──────────────────────────────────────────────── */
 interface NavItem { label: string; href: string }
 const NAV: NavItem[] = [
   { label: 'Work', href: '#work' },
@@ -33,6 +33,22 @@ const NAV: NavItem[] = [
   { label: 'About', href: '#about' },
   { label: 'Journal', href: '#journal' },
   { label: 'Contact', href: '#contact' },
+]
+
+export interface ThemeOption {
+  id: string
+  name: string
+  bg: string
+  text: string
+  accent: string
+  sub: string
+}
+
+export const COLOR_PALETTES: ThemeOption[] = [
+  { id: 'dark-sand', name: 'Warm Minimalist', bg: '#1C1917', text: '#F5F1EB', accent: '#B8956A', sub: '#9B9189' },
+  { id: 'earthy-clay', name: 'Terracotta & Stone', bg: '#1B1816', text: '#FAF7F2', accent: '#C87D55', sub: '#A3968C' },
+  { id: 'monochrome', name: 'Monochrome Modern', bg: '#121212', text: '#FFFFFF', accent: '#D4D4D4', sub: '#888888' },
+  { id: 'nordic-sage', name: 'Nordic Sage', bg: '#171B19', text: '#F2F5F3', accent: '#8A9A86', sub: '#8F9B93' },
 ]
 
 /* ─── Navigation ──────────────────────────────────────────────────── */
@@ -175,14 +191,7 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
 
   return (
     <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
-      {/* Background image fallback layer */}
-      <img
-        src={IMGS.hero}
-        alt="Hero interior background"
-        className="absolute inset-0 w-full h-full object-cover opacity-75"
-      />
-
-      {/* Video layer */}
+      {/* Video layer - continuous loop without background image fallback */}
       <video
         ref={videoRef}
         src={heroVideo}
@@ -1533,6 +1542,60 @@ function Footer() {
 
       </div>
     </footer>
+  )
+}
+
+/* ─── Theme Switcher ───────────────────────────────────────────────── */
+function ThemeSwitcher({
+  activeTheme,
+  onSelectTheme,
+  onReplayPreloader,
+}: {
+  activeTheme: ThemeOption
+  onSelectTheme: (t: ThemeOption) => void
+  onReplayPreloader: () => void
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2 font-sans select-none">
+      {open && (
+        <div className="bg-[#1C1917]/95 backdrop-blur-md border border-[#F5F1EB]/15 p-4 rounded-xl shadow-2xl flex flex-col gap-3 min-w-[220px] text-xs text-[#F5F1EB] animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="flex items-center justify-between border-b border-[#F5F1EB]/10 pb-2">
+            <span className="font-medium tracking-wider uppercase text-[10px] text-[#B8956A]">Theme Studio</span>
+            <button
+              onClick={onReplayPreloader}
+              className="text-[10px] tracking-wider text-[#9B9189] hover:text-[#F5F1EB] transition-colors"
+            >
+              Replay Intro ↺
+            </button>
+          </div>
+          <div className="space-y-1.5">
+            {COLOR_PALETTES.map((palette) => (
+              <button
+                key={palette.id}
+                onClick={() => onSelectTheme(palette)}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-all ${
+                  activeTheme.id === palette.id
+                    ? 'bg-[#F5F1EB]/15 text-[#F5F1EB] font-medium'
+                    : 'hover:bg-[#F5F1EB]/5 text-[#9B9189] hover:text-[#F5F1EB]'
+                }`}
+              >
+                <span>{palette.name}</span>
+                <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: palette.accent }} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-12 h-12 rounded-full bg-[#1C1917]/85 backdrop-blur-md border border-[#F5F1EB]/20 shadow-lg flex items-center justify-center text-[#F5F1EB] hover:scale-105 active:scale-95 transition-all duration-300 group"
+        aria-label="Theme Studio"
+      >
+        <span className="w-4 h-4 rounded-full border border-white/40 group-hover:rotate-180 transition-transform duration-500" style={{ backgroundColor: activeTheme.accent }} />
+      </button>
+    </div>
   )
 }
 
