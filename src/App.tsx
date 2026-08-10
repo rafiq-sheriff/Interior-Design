@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import heroVideo from '../public/assets/video/hero/hero.mp4'
 
 /* ─── Image helpers ───────────────────────────────────────────────── */
 const IMGS = {
@@ -154,15 +155,23 @@ function Hero() {
 
   return (
     <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
+      {/* High-res interior background image (shows instantly while video buffers) */}
+      <img
+        src={IMGS.hero}
+        alt="Hero interior background"
+        className="absolute inset-0 w-full h-full object-cover opacity-75"
+      />
+
+      {/* Video layer */}
       <video
         ref={videoRef}
-        src="/assets/video/hero/hero.mp4"
+        src={heroVideo}
         autoPlay
         loop
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover opacity-80"
+        className="absolute inset-0 w-full h-full object-cover opacity-85 transition-opacity duration-1000"
         onCanPlay={(e) => {
           e.currentTarget.muted = true
           e.currentTarget.play().catch(() => {})
@@ -172,10 +181,10 @@ function Hero() {
           e.currentTarget.play().catch(() => {})
         }}
       >
-        <source src="/assets/video/hero/hero.mp4" type="video/mp4" />
+        <source src={heroVideo} type="video/mp4" />
       </video>
       {/* Dark vignette */}
-      <div className="absolute inset-0 bg-black/30 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/50" />
+      <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/50 pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 py-20 md:py-28 w-full flex flex-col items-center text-center">
