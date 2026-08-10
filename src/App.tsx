@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import heroVideo from '../public/assets/video/hero/hero.mp4'
+
+const heroVideo = '/assets/video/hero/hero.mp4'
 
 /* ─── Image helpers ───────────────────────────────────────────────── */
 const IMGS = {
+  hero: 'https://images.unsplash.com/photo-1757924461488-ef9ad0670978?w=1800&h=1000&fit=crop&auto=format',
   proj1: 'https://images.unsplash.com/photo-1648881806148-e5c51179c826?w=900&h=700&fit=crop&auto=format',
   proj2: 'https://images.unsplash.com/photo-1688647063090-36f36f692d95?w=700&h=900&fit=crop&auto=format',
   proj3: 'https://images.unsplash.com/photo-1745301558339-44eb3217d5da?w=900&h=600&fit=crop&auto=format',
@@ -173,6 +175,13 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
 
   return (
     <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
+      {/* Background image fallback layer */}
+      <img
+        src={IMGS.hero}
+        alt="Hero interior background"
+        className="absolute inset-0 w-full h-full object-cover opacity-75"
+      />
+
       {/* Video layer */}
       <video
         ref={videoRef}
