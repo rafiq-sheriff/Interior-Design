@@ -154,7 +154,13 @@ function Navigation() {
 }
 
 /* ─── Hero ────────────────────────────────────────────────────────── */
-function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
+function Hero({
+  onVideoReady,
+  onVideoProgress,
+}: {
+  onVideoReady?: () => void
+  onVideoProgress?: (progress: number) => void
+}) {
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const handleVideoReady = useCallback(() => {
@@ -183,6 +189,20 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
     }
   }, [onVideoReady])
 
+  const handleProgress = useCallback(() => {
+    const v = videoRef.current
+    if (v && v.duration > 0 && v.buffered.length > 0) {
+      const bufferedEnd = v.buffered.end(v.buffered.length - 1)
+      const percent = Math.min(100, Math.floor((bufferedEnd / v.duration) * 100))
+      if (onVideoProgress) {
+        onVideoProgress(percent)
+      }
+      if (percent >= 80 || v.readyState >= 3) {
+        handleVideoReady()
+      }
+    }
+  }, [onVideoProgress, handleVideoReady])
+
   useEffect(() => {
     const v = videoRef.current
     if (v) {
@@ -190,16 +210,14 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
       v.defaultMuted = true
       v.playsInline = true
       
-      handleVideoReady()
-
-      // Safety timer: unlock preloader after max 2.5s window
-      const safetyTimer = setTimeout(() => {
-        if (onVideoReady) onVideoReady()
-      }, 2500)
-
-      if (v.readyState >= 1) {
+      if (v.readyState >= 3) {
         handleVideoReady()
       }
+
+      // Safety fallback timer if network blocks event listeners
+      const safetyTimer = setTimeout(() => {
+        if (onVideoReady) onVideoReady()
+      }, 12000)
 
       return () => clearTimeout(safetyTimer)
     }
@@ -219,9 +237,10 @@ function Hero({ onVideoReady }: { onVideoReady?: () => void }) {
         className="absolute inset-0 w-full h-full object-cover z-0"
         onCanPlay={handleVideoReady}
         onCanPlayThrough={handleVideoReady}
-        onLoadedData={handleVideoReady}
-        onLoadedMetadata={handleVideoReady}
-        onPlay={() => onVideoReady?.()}
+        onLoadedData={handleProgress}
+        onProgress={handleProgress}
+        onLoadedMetadata={handleProgress}
+        onPlay={handleVideoReady}
       >
         <source src={heroVideo} type="video/mp4" />
       </video>
@@ -1564,7 +1583,13 @@ function Footer() {
 }
 
 /* ─── Preloader ────────────────────────────────────────────────────── */
-function Preloader({ isVideoReady }: { isVideoReady: boolean }) {
+function Preloader({
+  isVideoReady,
+  videoDownloadPercent,
+}: {
+  isVideoReady: boolean
+  videoDownloadPercent: number
+}) {
   const [progress, setProgress] = useState(0)
   const [loadingTextIndex, setLoadingTextIndex] = useState(0)
   const [isFinished, setIsFinished] = useState(false)
@@ -1575,7 +1600,7 @@ function Preloader({ isVideoReady }: { isVideoReady: boolean }) {
   const loadingPhrases = [
     'Architectural Form & Light',
     'Curating Materials & Textures',
-    'Buffering Cinema Video',
+    'Downloading Cinema Video',
     'Spaces Designed Around You',
     'Welcome to FORMA Studio',
   ]
@@ -1585,8 +1610,13 @@ function Preloader({ isVideoReady }: { isVideoReady: boolean }) {
 
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 92 && !isVideoReady) {
-          return 92
+        let cap = 92
+        if (videoDownloadPercent > 0) {
+          cap = Math.min(95, videoDownloadPercent)
+        }
+
+        if (prev >= cap && !isVideoReady) {
+          return cap
         }
         if (prev >= 100) {
           clearInterval(interval)
@@ -1598,7 +1628,7 @@ function Preloader({ isVideoReady }: { isVideoReady: boolean }) {
     }, 45)
 
     return () => clearInterval(interval)
-  }, [isVideoReady])
+  }, [isVideoReady, videoDownloadPercent])
 
   useEffect(() => {
     if (progress < 25) setLoadingTextIndex(0)
@@ -1668,7 +1698,7 @@ function Preloader({ isVideoReady }: { isVideoReady: boolean }) {
       <div className="w-full max-w-[1440px] mx-auto">
         <div className="flex items-end justify-between mb-4 font-mono" style={{ color: theme.text }}>
           <span className="text-xs tracking-widest uppercase" style={{ color: theme.sub }}>
-            {isVideoReady ? 'Video Ready • Finalizing' : 'Downloading Cinema Video'}
+            {isVideoReady ? 'Video Ready • Finalizing' : `Downloading Cinema Video ${videoDownloadPercent > 0 ? `(${videoDownloadPercent}%)` : ''}`}
           </span>
           <span className="text-3xl md:text-5xl font-light" style={{ color: theme.text }}>
             {String(progress).padStart(2, '0')}%
@@ -1690,12 +1720,16 @@ function Preloader({ isVideoReady }: { isVideoReady: boolean }) {
 /* ─── App ─────────────────────────────────────────────────────────── */
 export default function App() {
   const [isVideoReady, setIsVideoReady] = useState(false)
+  const [videoDownloadPercent, setVideoDownloadPercent] = useState(0)
 
   return (
     <div className="min-h-screen">
-      <Preloader isVideoReady={isVideoReady} />
+      <Preloader isVideoReady={isVideoReady} videoDownloadPercent={videoDownloadPercent} />
       <Navigation />
-      <Hero onVideoReady={() => setIsVideoReady(true)} />
+      <Hero
+        onVideoReady={() => setIsVideoReady(true)}
+        onVideoProgress={(pct) => setVideoDownloadPercent(pct)}
+      />
       <SelectedWork />
       <ProjectDetail />
       <Services />
