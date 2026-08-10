@@ -47,27 +47,24 @@ function Navigation() {
   return (
     <nav
       style={{ fontFamily: 'Instrument Sans, system-ui, sans-serif' }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? 'bg-[#F5F1EB]/95 backdrop-blur-sm border-b border-[rgba(28,25,23,0.1)]' : 'bg-transparent'
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-[#F5F1EB]/95 backdrop-blur-sm border-b border-[rgba(28,25,23,0.1)]' : 'bg-transparent'
+        }`}
     >
       <div className="max-w-[1440px] mx-auto px-8 md:px-16 flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
         <a href="#" className="flex items-center gap-2 group">
           <span
             style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            className={`text-xl font-medium tracking-tight transition-colors duration-300 ${
-              scrolled ? 'text-[#1C1917]' : 'text-[#F5F1EB]'
-            }`}
+            className={`text-xl font-medium tracking-tight transition-colors duration-300 ${scrolled ? 'text-[#1C1917]' : 'text-[#F5F1EB]'
+              }`}
           >
             FORMA
           </span>
           <span
             className="w-1 h-1 rounded-full bg-[#B8956A] mt-0.5"
           />
-          <span className={`text-xs tracking-[0.2em] uppercase font-light hidden sm:block transition-colors duration-300 ${
-            scrolled ? 'text-[#9B9189]' : 'text-[#F5F1EB]/70'
-          }`}>
+          <span className={`text-xs tracking-[0.2em] uppercase font-light hidden sm:block transition-colors duration-300 ${scrolled ? 'text-[#9B9189]' : 'text-[#F5F1EB]/70'
+            }`}>
             Studio
           </span>
         </a>
@@ -78,11 +75,10 @@ function Navigation() {
             <a
               key={item.label}
               href={item.href}
-              className={`text-sm tracking-wide transition-colors duration-300 ${
-                scrolled
+              className={`text-sm tracking-wide transition-colors duration-300 ${scrolled
                   ? 'text-[#1C1917]/70 hover:text-[#1C1917]'
                   : 'text-[#F5F1EB]/80 hover:text-[#F5F1EB]'
-              }`}
+                }`}
             >
               {item.label}
             </a>
@@ -93,11 +89,10 @@ function Navigation() {
         <div className="hidden md:block">
           <a
             href="#contact"
-            className={`text-xs tracking-[0.12em] uppercase px-6 py-2.5 transition-all duration-300 border ${
-              scrolled
+            className={`text-xs tracking-[0.12em] uppercase px-6 py-2.5 transition-all duration-300 border ${scrolled
                 ? 'border-[#1C1917] text-[#1C1917] hover:bg-[#1C1917] hover:text-[#F5F1EB]'
                 : 'border-[#F5F1EB] text-[#F5F1EB] hover:bg-[#F5F1EB] hover:text-[#1C1917]'
-            }`}
+              }`}
           >
             Start a Project
           </a>
@@ -143,16 +138,30 @@ function Navigation() {
 
 /* ─── Hero ────────────────────────────────────────────────────────── */
 function Hero() {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true
+      videoRef.current.play().catch(() => {
+        // Autoplay fallback handling
+      })
+    }
+  }, [])
+
   return (
     <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
       <video
-        src="/assets/video/hero/hero.mp4"
+        ref={videoRef}
         autoPlay
         loop
         muted
         playsInline
+        poster={IMGS.hero}
         className="absolute inset-0 w-full h-full object-cover opacity-80"
-      />
+      >
+        <source src="/assets/video/hero/hero.mp4" type="video/mp4" />
+      </video>
       {/* Dark vignette */}
       <div className="absolute inset-0 bg-black/30 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/50" />
 
@@ -212,103 +221,386 @@ function SectionHeader({ label, heading, sub }: { label: string; heading: string
 }
 
 /* ─── Selected Work ───────────────────────────────────────────────── */
-const PROJECTS = [
-  { img: IMGS.proj1, name: 'Casa Verde', location: 'Chennai, India', type: 'Residential Interior', year: '2026', size: 'large' },
-  { img: IMGS.proj2, name: 'The Atelier', location: 'Mumbai, India', type: 'Commercial Interior', year: '2025', size: 'tall' },
-  { img: IMGS.proj3, name: 'Villa Lumière', location: 'Bengaluru, India', type: 'Hospitality Design', year: '2025', size: 'wide' },
-  { img: IMGS.proj4, name: 'Meridian House', location: 'Delhi, India', type: 'Residential Interior', year: '2024', size: 'medium' },
-  { img: IMGS.proj5, name: 'Studio Blanc', location: 'Hyderabad, India', type: 'Commercial Interior', year: '2024', size: 'small' },
+/* ─── Selected Work ───────────────────────────────────────────────── */
+interface Project {
+  id: string
+  name: string
+  location: string
+  category: 'Residential' | 'Commercial' | 'Hospitality'
+  year: string
+  size: string
+  lead: string
+  materials: string[]
+  img: string
+  aspectRatio: string
+  description: string
+  gallery: string[]
+}
+
+const PROJECTS: Project[] = [
+  {
+    id: 'casa-verde',
+    name: 'Casa Verde',
+    location: 'Chennai, India',
+    category: 'Residential',
+    year: '2026',
+    size: '5,400 sq.ft',
+    lead: 'Vikram Sheriff',
+    materials: ['Natural Teak', 'Calacatta Marble', 'Brushed Brass'],
+    img: IMGS.proj1,
+    aspectRatio: 'aspect-[4/3]',
+    description: 'A coastal residence designed around internal courtyards, natural cross-ventilation, and warm tactile surfaces that age gracefully over time.',
+    gallery: [IMGS.proj1, IMGS.detail, IMGS.mat1],
+  },
+  {
+    id: 'the-atelier',
+    name: 'The Atelier',
+    location: 'Mumbai, India',
+    category: 'Commercial',
+    year: '2025',
+    size: '8,200 sq.ft',
+    lead: 'Priya Sharma',
+    materials: ['Fluted Glass', 'Micro-cement', 'Blackened Steel'],
+    img: IMGS.proj2,
+    aspectRatio: 'aspect-[3/4]',
+    description: 'A flagship design studio workspace built around open collaboration zones, acoustic oak fins, and framed natural daylight.',
+    gallery: [IMGS.proj2, IMGS.about, IMGS.mat4],
+  },
+  {
+    id: 'villa-lumiere',
+    name: 'Villa Lumière',
+    location: 'Bengaluru, India',
+    category: 'Hospitality',
+    year: '2025',
+    size: '12,500 sq.ft',
+    lead: 'Arjun Mehta',
+    materials: ['Kota Stone', 'Rattan Weave', 'Polished Copper'],
+    img: IMGS.proj3,
+    aspectRatio: 'aspect-[16/9]',
+    description: 'A boutique luxury hotel sanctuary merging modern spatial geometry with indigenous craft traditions.',
+    gallery: [IMGS.proj3, IMGS.detail2, IMGS.mat2],
+  },
+  {
+    id: 'meridian-house',
+    name: 'Meridian House',
+    location: 'Delhi, India',
+    category: 'Residential',
+    year: '2024',
+    size: '6,800 sq.ft',
+    lead: 'Vikram Sheriff',
+    materials: ['Smoked Walnut', 'Raw Travertine', 'Linen Textiles'],
+    img: IMGS.proj4,
+    aspectRatio: 'aspect-[4/3]',
+    description: 'A double-height urban home characterized by monolithic travertine walls and bespoke recessed lighting coves.',
+    gallery: [IMGS.proj4, IMGS.mat3, IMGS.about2],
+  },
+  {
+    id: 'studio-blanc',
+    name: 'Studio Blanc',
+    location: 'Hyderabad, India',
+    category: 'Commercial',
+    year: '2024',
+    size: '4,100 sq.ft',
+    lead: 'Priya Sharma',
+    materials: ['Venetian Plaster', 'White Oak', 'Brushed Aluminium'],
+    img: IMGS.proj5,
+    aspectRatio: 'aspect-[4/3]',
+    description: 'A minimalist gallery and concept retail environment focused on spatial purity, shadow lines, and monochromatic materiality.',
+    gallery: [IMGS.proj5, IMGS.journal1, IMGS.mat1],
+  },
 ]
 
-function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: number }) {
+const CATEGORIES = ['All', 'Residential', 'Commercial', 'Hospitality']
+
+function ProjectCard({
+  project,
+  index,
+  onSelect,
+}: {
+  project: Project
+  index: number
+  onSelect: (p: Project) => void
+}) {
   const [hovered, setHovered] = useState(false)
 
   return (
     <div
-      className="group cursor-pointer"
+      className="group cursor-pointer flex flex-col justify-between h-full"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={() => onSelect(project)}
     >
-      <div className="img-zoom relative overflow-hidden bg-[#EDE8DF]">
+      <div className="img-zoom relative overflow-hidden bg-[#EDE8DF] mb-5 rounded-sm">
         <img
           src={project.img}
-          alt={`${project.name} — ${project.type}`}
-          className="w-full h-full object-cover block"
-          style={{ aspectRatio: project.size === 'tall' ? '3/4' : project.size === 'wide' ? '16/9' : '4/3' }}
+          alt={`${project.name} — ${project.category}`}
+          className="w-full h-full object-cover block transition-transform duration-700 ease-out group-hover:scale-105"
+          style={{
+            aspectRatio:
+              project.id === 'the-atelier'
+                ? '3/4'
+                : project.id === 'villa-lumiere'
+                ? '16/9'
+                : '4/3',
+          }}
         />
+
+        {/* Hover overlay with materials & view button */}
         <div
-          className="absolute inset-0 bg-[#1C1917]/40 flex items-end p-6 transition-opacity duration-400"
+          className="absolute inset-0 bg-[#1C1917]/70 p-6 md:p-8 flex flex-col justify-between transition-opacity duration-400"
           style={{ opacity: hovered ? 1 : 0 }}
         >
-          <span className="text-[#F5F1EB] text-xs tracking-[0.15em] uppercase border-b border-[#F5F1EB]/60 pb-0.5">
-            View Project →
-          </span>
+          <div className="flex items-center justify-between">
+            <span className="text-[#B8956A] text-[10px] tracking-[0.25em] uppercase font-mono bg-[#1C1917]/80 px-3 py-1 border border-[#B8956A]/30">
+              {project.category}
+            </span>
+            <span className="text-[#F5F1EB]/60 text-xs font-mono">{project.size}</span>
+          </div>
+
+          <div>
+            <p className="text-[#F5F1EB]/50 text-xs tracking-wider uppercase mb-2 font-mono">Key Materials</p>
+            <div className="flex flex-wrap gap-1.5 mb-6">
+              {project.materials.map((m) => (
+                <span
+                  key={m}
+                  className="text-[#F5F1EB] text-[11px] bg-[#F5F1EB]/10 backdrop-blur-sm px-2.5 py-1 border border-[#F5F1EB]/20 font-light"
+                >
+                  {m}
+                </span>
+              ))}
+            </div>
+            <span className="inline-flex items-center gap-2 text-[#F5F1EB] text-xs tracking-[0.15em] uppercase border-b border-[#B8956A] pb-0.5 group-hover:text-[#B8956A] transition-colors">
+              Explore Architectural Brief →
+            </span>
+          </div>
         </div>
       </div>
-      <div className="mt-4 flex items-start justify-between gap-4">
-        <div>
-          <h3
-            style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            className="text-[#1C1917] text-xl font-medium mb-1"
+
+      <div>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[#B8956A] text-[11px] font-mono tracking-wider">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span className="text-[#1C1917]/30 text-[10px]">•</span>
+              <span className="text-[#9B9189] text-xs font-light">{project.location}</span>
+            </div>
+            <h3
+              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+              className="text-[#1C1917] text-2xl font-medium group-hover:text-[#B8956A] transition-colors duration-200"
+            >
+              {project.name}
+            </h3>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <span className="inline-block text-[#1C1917]/60 text-xs font-mono border border-[rgba(28,25,23,0.15)] px-2.5 py-1">
+              {project.year}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Project Lightbox Modal ────────────────────────────────────────── */
+function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
+  const [activeImage, setActiveImage] = useState(project.img)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [onClose])
+
+  return (
+    <div className="fixed inset-0 z-[120] bg-[#1C1917]/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-10 overflow-y-auto fade-up">
+      <div className="bg-[#F5F1EB] text-[#1C1917] max-w-5xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl border border-[#1C1917]/10">
+        
+        {/* Modal Header */}
+        <div className="sticky top-0 bg-[#F5F1EB]/95 backdrop-blur-md px-8 py-5 border-b border-[rgba(28,25,23,0.1)] flex items-center justify-between z-20">
+          <div>
+            <span className="text-[#B8956A] text-xs tracking-[0.2em] uppercase font-mono">{project.category} Portfolio</span>
+            <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif' }} className="text-2xl font-medium text-[#1C1917]">
+              {project.name}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 border border-[#1C1917]/20 flex items-center justify-center hover:bg-[#1C1917] hover:text-[#F5F1EB] transition-colors"
+            aria-label="Close modal"
           >
-            {project.name}
-          </h3>
-          <p className="text-[#9B9189] text-sm">{project.location}</p>
+            ✕
+          </button>
         </div>
-        <div className="text-right flex-shrink-0">
-          <p className="text-[#9B9189] text-xs tracking-wide">{project.type}</p>
-          <p className="text-[#1C1917]/40 text-xs mt-0.5">{project.year}</p>
+
+        {/* Modal Body */}
+        <div className="p-8 md:p-12 space-y-10">
+          
+          {/* Main Gallery Display */}
+          <div className="space-y-4">
+            <div className="overflow-hidden bg-[#EDE8DF] aspect-[16/10] w-full">
+              <img
+                src={activeImage}
+                alt={project.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            {/* Gallery Thumbnails */}
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {project.gallery.map((gImg, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveImage(gImg)}
+                  className={`w-24 h-16 overflow-hidden flex-shrink-0 border-2 transition-all ${
+                    activeImage === gImg ? 'border-[#B8956A] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img src={gImg} alt="Thumbnail" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Project Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-6 border-t border-[rgba(28,25,23,0.1)]">
+            
+            {/* Description */}
+            <div className="md:col-span-7">
+              <h4 className="text-xs tracking-[0.25em] uppercase text-[#B8956A] mb-3 font-mono">Architectural Brief</h4>
+              <p className="text-[#1C1917]/80 text-base leading-relaxed font-light mb-6">
+                {project.description}
+              </p>
+              
+              <h4 className="text-xs tracking-[0.25em] uppercase text-[#B8956A] mb-3 font-mono">Specified Material Palette</h4>
+              <div className="flex flex-wrap gap-2">
+                {project.materials.map((m) => (
+                  <span key={m} className="bg-[#EDE8DF] text-[#1C1917] text-xs px-3 py-1.5 border border-[#1C1917]/10">
+                    {m}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Specifications Sidebar */}
+            <div className="md:col-span-5 bg-[#EDE8DF] p-6 space-y-4 text-xs font-mono">
+              <h4 className="text-xs tracking-[0.2em] uppercase text-[#1C1917]/40 border-b border-[#1C1917]/10 pb-2">Project Specs</h4>
+              <div className="flex justify-between border-b border-[#1C1917]/10 pb-2">
+                <span className="text-[#9B9189]">Location</span>
+                <span className="text-[#1C1917] font-medium">{project.location}</span>
+              </div>
+              <div className="flex justify-between border-b border-[#1C1917]/10 pb-2">
+                <span className="text-[#9B9189]">Total Area</span>
+                <span className="text-[#1C1917] font-medium">{project.size}</span>
+              </div>
+              <div className="flex justify-between border-b border-[#1C1917]/10 pb-2">
+                <span className="text-[#9B9189]">Completion</span>
+                <span className="text-[#1C1917] font-medium">{project.year}</span>
+              </div>
+              <div className="flex justify-between border-b border-[#1C1917]/10 pb-2">
+                <span className="text-[#9B9189]">Lead Architect</span>
+                <span className="text-[#1C1917] font-medium">{project.lead}</span>
+              </div>
+
+              <a
+                href="#contact"
+                onClick={onClose}
+                className="mt-6 block text-center bg-[#1C1917] text-[#F5F1EB] text-xs tracking-[0.15em] uppercase py-3 hover:bg-[#B8956A] transition-colors"
+              >
+                Inquire About Similar Project →
+              </a>
+            </div>
+
+          </div>
+
         </div>
       </div>
-      <p className="text-[#1C1917]/20 text-xs tracking-[0.15em] mt-1">
-        {String(index + 1).padStart(2, '0')}
-      </p>
     </div>
   )
 }
 
 function SelectedWork() {
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [activeProject, setActiveProject] = useState<Project | null>(null)
+
+  const filteredProjects =
+    selectedCategory === 'All'
+      ? PROJECTS
+      : PROJECTS.filter((p) => p.category === selectedCategory)
+
   return (
-    <section id="work" className="py-24 md:py-36 bg-[#F5F1EB]">
+    <section id="work" className="py-24 md:py-36 bg-[#F5F1EB] relative">
       <div className="max-w-[1440px] mx-auto px-8 md:px-16">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16 md:mb-24 gap-8">
+        
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 md:mb-16 gap-8">
           <SectionHeader
-            label="Portfolio"
-            heading={"Selected\nWork"}
-            sub="A collection of spaces where architecture, material, and everyday life come together."
+            label="Selected Portfolio"
+            heading={"Spaces Designed\nWith Purpose."}
+            sub="Explore our curated architectural and interior commissions across India."
           />
-          <a
-            href="#work"
-            className="self-start md:self-end text-[#1C1917] text-xs tracking-[0.15em] uppercase border-b border-[#1C1917]/30 pb-0.5 hover:border-[#B8956A] hover:text-[#B8956A] transition-colors duration-200 flex-shrink-0"
-          >
-            View All Projects
-          </a>
-        </div>
-
-        {/* Asymmetric editorial grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
-          {/* Row 1: large left + tall right */}
-          <div className="md:col-span-7">
-            <ProjectCard project={PROJECTS[0]} index={0} />
-          </div>
-          <div className="md:col-span-5 md:pt-16">
-            <ProjectCard project={PROJECTS[1]} index={1} />
-          </div>
-
-          {/* Row 2: wide full */}
-          <div className="md:col-span-8 md:col-start-3">
-            <ProjectCard project={PROJECTS[2]} index={2} />
-          </div>
-
-          {/* Row 3: medium + small */}
-          <div className="md:col-span-6">
-            <ProjectCard project={PROJECTS[3]} index={3} />
-          </div>
-          <div className="md:col-span-4 md:pt-8">
-            <ProjectCard project={PROJECTS[4]} index={4} />
+          
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2 self-start md:self-end">
+            {CATEGORIES.map((cat) => {
+              const isSelected = selectedCategory === cat
+              const count = cat === 'All' ? PROJECTS.length : PROJECTS.filter(p => p.category === cat).length
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 transition-all duration-300 border ${
+                    isSelected
+                      ? 'bg-[#1C1917] text-[#F5F1EB] border-[#1C1917]'
+                      : 'bg-transparent text-[#1C1917]/70 border-[rgba(28,25,23,0.15)] hover:border-[#1C1917] hover:text-[#1C1917]'
+                  }`}
+                >
+                  {cat} <span className="text-[10px] opacity-60 ml-1 font-mono">({count})</span>
+                </button>
+              )
+            })}
           </div>
         </div>
+
+        {/* Editorial Project Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10">
+          {filteredProjects.map((project, index) => {
+            // Editorial column layout logic
+            let colSpan = 'md:col-span-6'
+            if (index === 0) colSpan = 'md:col-span-7'
+            else if (index === 1) colSpan = 'md:col-span-5 md:pt-12'
+            else if (index === 2) colSpan = 'md:col-span-12 md:py-6'
+            else if (index === 3) colSpan = 'md:col-span-6'
+            else if (index === 4) colSpan = 'md:col-span-6 md:pt-8'
+
+            return (
+              <div key={project.id} className={colSpan}>
+                <ProjectCard
+                  project={project}
+                  index={index}
+                  onSelect={setActiveProject}
+                />
+              </div>
+            )
+          })}
+        </div>
+
       </div>
+
+      {/* Lightbox Modal */}
+      {activeProject && (
+        <ProjectModal
+          project={activeProject}
+          onClose={() => setActiveProject(null)}
+        />
+      )}
     </section>
   )
 }
@@ -1012,7 +1304,7 @@ function Footer() {
   return (
     <footer className="bg-[#1C1917] text-[#F5F1EB] pt-24 pb-12 border-t border-[#F5F1EB]/10 relative overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-8 md:px-16">
-        
+
         {/* Top Newsletter & Journal Subscription */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-20 border-b border-[#F5F1EB]/10 items-end">
           <div className="lg:col-span-7">
@@ -1208,10 +1500,125 @@ function Footer() {
   )
 }
 
+/* ─── Preloader ────────────────────────────────────────────────────── */
+function Preloader() {
+  const [progress, setProgress] = useState(0)
+  const [loadingTextIndex, setLoadingTextIndex] = useState(0)
+  const [isFinished, setIsFinished] = useState(false)
+  const [isDone, setIsDone] = useState(false)
+
+  const loadingPhrases = [
+    'Architectural Form & Light',
+    'Curating Materials & Textures',
+    'Spaces Designed Around You',
+    'Welcome to FORMA Studio',
+  ]
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          return 100
+        }
+        const diff = Math.floor(Math.random() * 3) + 2
+        return Math.min(prev + diff, 100)
+      })
+    }, 65)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    if (progress < 30) setLoadingTextIndex(0)
+    else if (progress < 65) setLoadingTextIndex(1)
+    else if (progress < 99) setLoadingTextIndex(2)
+    else setLoadingTextIndex(3)
+
+    if (progress === 100) {
+      const timer = setTimeout(() => {
+        setIsFinished(true)
+      }, 550)
+
+      const removeTimer = setTimeout(() => {
+        setIsDone(true)
+        document.body.style.overflow = ''
+      }, 1600)
+
+      return () => {
+        clearTimeout(timer)
+        clearTimeout(removeTimer)
+      }
+    }
+  }, [progress])
+
+  if (isDone) return null
+
+  return (
+    <div
+      className={`fixed inset-0 z-[100] bg-[#1C1917] flex flex-col justify-between p-8 md:p-16 transition-all duration-1000 cubic-bezier(0.77,0,0.175,1) ${isFinished ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+        }`}
+    >
+      {/* Top Bar */}
+      <div className="flex items-center justify-between text-[#F5F1EB]/40 text-xs tracking-[0.2em] uppercase font-mono">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#B8956A] animate-pulse" />
+          <span>FORMA Studio</span>
+        </div>
+        <span>Architecture & Interior</span>
+      </div>
+
+      {/* Center Brand & Phrase */}
+      <div className="max-w-4xl mx-auto w-full text-center flex flex-col items-center justify-center my-auto py-12">
+        <h1
+          style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+          className="text-[#F5F1EB] text-6xl md:text-8xl lg:text-9xl font-medium tracking-tight mb-6"
+        >
+          FORMA
+          <span className="inline-block w-2.5 h-2.5 md:w-4 md:h-4 rounded-full bg-[#B8956A] ml-2" />
+        </h1>
+
+        {/* Dynamic phrase reveal */}
+        <div className="h-8 overflow-hidden relative">
+          <p
+            key={loadingTextIndex}
+            className="text-[#B8956A] text-xs md:text-sm tracking-[0.3em] uppercase font-light fade-up"
+          >
+            {loadingPhrases[loadingTextIndex]}
+          </p>
+        </div>
+      </div>
+
+      {/* Bottom Counter & Hairline Progress */}
+      <div className="w-full max-w-[1440px] mx-auto">
+        <div className="flex items-end justify-between mb-4 text-[#F5F1EB] font-mono">
+          <span className="text-[#9B9189] text-xs tracking-widest uppercase">
+            Loading Experience
+          </span>
+          <span className="text-3xl md:text-5xl font-light text-[#F5F1EB]">
+            {String(progress).padStart(2, '0')}%
+          </span>
+        </div>
+
+        {/* Hairline Gold Progress Bar */}
+        <div className="w-full h-0.5 bg-[#F5F1EB]/10 relative overflow-hidden rounded-full">
+          <div
+            className="h-full bg-[#B8956A] transition-all duration-200 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ─── App ─────────────────────────────────────────────────────────── */
 export default function App() {
   return (
     <div className="min-h-screen">
+      <Preloader />
       <Navigation />
       <Hero />
       <SelectedWork />
