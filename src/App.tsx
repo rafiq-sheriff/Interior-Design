@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-const heroVideo = '/assets/video/hero/hero1.mp4'
+const heroVideo = '/assets/video/hero/hero.mp4'
 
 /* ─── Image helpers ───────────────────────────────────────────────── */
 const IMGS = {
@@ -51,7 +51,7 @@ export const COLOR_PALETTES: ThemeOption[] = [
 ]
 
 /* ─── Navigation ──────────────────────────────────────────────────── */
-function Navigation({ showContent }: { showContent: boolean }) {
+function Navigation({ visible = true }: { visible?: boolean }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -65,9 +65,11 @@ function Navigation({ showContent }: { showContent: boolean }) {
     <nav
       style={{ fontFamily: 'Instrument Sans, system-ui, sans-serif' }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 cubic-bezier(0.16,1,0.3,1) ${
-        showContent ? 'translate-y-0 opacity-100' : '-translate-y-6 opacity-0 pointer-events-none'
+        visible ? 'translate-y-0 opacity-100 pointer-events-auto' : '-translate-y-6 opacity-0 pointer-events-none'
       } ${
-        scrolled ? 'bg-[#F5F1EB]/95 backdrop-blur-sm border-b border-[rgba(28,25,23,0.1)]' : 'bg-transparent'
+        scrolled
+          ? 'bg-[#F5F1EB]/95 backdrop-blur-sm border-b border-[rgba(28,25,23,0.1)] shadow-sm text-[#1C1917]'
+          : 'bg-[#1C1917]/70 backdrop-blur-md border-b border-white/10 text-[#F5F1EB]'
       }`}
     >
       <div className="max-w-[1440px] mx-auto px-8 md:px-16 flex items-center justify-between h-16 md:h-20">
@@ -75,8 +77,9 @@ function Navigation({ showContent }: { showContent: boolean }) {
         <a href="#" className="flex items-center gap-2 group">
           <span
             style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            className={`text-xl font-medium tracking-tight transition-colors duration-300 ${scrolled ? 'text-[#1C1917]' : 'text-[#F5F1EB]'
-              }`}
+            className={`text-xl font-medium tracking-tight transition-colors duration-300 ${
+              scrolled ? 'text-[#1C1917]' : 'text-[#F5F1EB]'
+            }`}
           >
             FORMA
           </span>
@@ -88,10 +91,11 @@ function Navigation({ showContent }: { showContent: boolean }) {
             <a
               key={item.label}
               href={item.href}
-              className={`text-sm tracking-wide transition-colors duration-300 ${scrolled
+              className={`text-sm tracking-wide transition-colors duration-300 ${
+                scrolled
                   ? 'text-[#1C1917]/70 hover:text-[#1C1917]'
                   : 'text-[#F5F1EB]/80 hover:text-[#F5F1EB]'
-                }`}
+              }`}
             >
               {item.label}
             </a>
@@ -102,10 +106,11 @@ function Navigation({ showContent }: { showContent: boolean }) {
         <div className="hidden md:block">
           <a
             href="#contact"
-            className={`text-xs tracking-[0.12em] uppercase px-6 py-2.5 transition-all duration-300 border ${scrolled
+            className={`text-xs tracking-[0.12em] uppercase px-6 py-2.5 transition-all duration-300 border ${
+              scrolled
                 ? 'border-[#1C1917] text-[#1C1917] hover:bg-[#1C1917] hover:text-[#F5F1EB]'
                 : 'border-[#F5F1EB] text-[#F5F1EB] hover:bg-[#F5F1EB] hover:text-[#1C1917]'
-              }`}
+            }`}
           >
             Start a Project
           </a>
@@ -150,157 +155,201 @@ function Navigation({ showContent }: { showContent: boolean }) {
 }
 
 /* ─── Hero ────────────────────────────────────────────────────────── */
-function Hero({
-  showContent,
-  onVideoReady,
-  onVideoProgress,
-}: {
-  showContent: boolean
-  onVideoReady?: () => void
-  onVideoProgress?: (progress: number) => void
-}) {
+interface HeroProps {
+  heroState: 'intro' | 'playing' | 'ended'
+  setHeroState: (s: 'intro' | 'playing' | 'ended') => void
+}
+
+function Hero({ heroState, setHeroState }: HeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const [animateIn, setAnimateIn] = useState(false)
 
-  const handleVideoReady = useCallback(() => {
-    const v = videoRef.current
-    if (v) {
-      v.muted = true
-      v.defaultMuted = true
-      v.playsInline = true
-      const playPromise = v.play()
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          const enablePlay = () => {
-            v.play()
-            window.removeEventListener('click', enablePlay)
-            window.removeEventListener('touchstart', enablePlay)
-            window.removeEventListener('scroll', enablePlay)
-          }
-          window.addEventListener('click', enablePlay)
-          window.addEventListener('touchstart', enablePlay)
-          window.addEventListener('scroll', enablePlay)
-        })
-      }
+  // Trigger staggered animations after video completes
+  useEffect(() => {
+    if (heroState === 'ended') {
+      const timer = setTimeout(() => setAnimateIn(true), 60)
+      return () => clearTimeout(timer)
+    } else {
+      setAnimateIn(false)
     }
-    if (onVideoReady) {
-      onVideoReady()
-    }
-  }, [onVideoReady])
+  }, [heroState])
 
-  const handleProgress = useCallback(() => {
-    const v = videoRef.current
-    if (v && v.duration > 0 && v.buffered.length > 0) {
-      const bufferedEnd = v.buffered.end(v.buffered.length - 1)
-      const percent = Math.min(100, Math.floor((bufferedEnd / v.duration) * 100))
-      if (onVideoProgress) {
-        onVideoProgress(percent)
-      }
-      if (percent >= 80 || v.readyState >= 3) {
-        handleVideoReady()
-      }
-    }
-  }, [onVideoProgress, handleVideoReady])
-
+  // Freeze at initial frame when in intro state
   useEffect(() => {
     const v = videoRef.current
-    if (v) {
-      v.muted = true
-      v.defaultMuted = true
-      v.playsInline = true
-      
-      if (v.readyState >= 3) {
-        handleVideoReady()
-      }
-
-      // Safety fallback timer if network blocks event listeners
-      const safetyTimer = setTimeout(() => {
-        if (onVideoReady) onVideoReady()
-      }, 12000)
-
-      return () => clearTimeout(safetyTimer)
+    if (v && heroState === 'intro') {
+      v.currentTime = 0
+      v.pause()
     }
-  }, [handleVideoReady, onVideoReady])
+  }, [heroState])
+
+  const handleLoadedMetadata = useCallback(() => {
+    const v = videoRef.current
+    if (v && heroState === 'intro') {
+      v.currentTime = 0
+      v.pause()
+    }
+  }, [heroState])
+
+  const handleStartWork = () => {
+    setHeroState('playing')
+    setTimeout(() => {
+      const v = videoRef.current
+      if (v) {
+        v.currentTime = 0
+        v.playbackRate = 1.4
+        v.muted = true
+        v.defaultMuted = true
+        v.playsInline = true
+        const playPromise = v.play()
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            console.warn("Video playback interrupted:", err)
+            setHeroState('ended')
+          })
+        }
+      }
+    }, 50)
+  }
+
+  const handleVideoEnded = () => {
+    const v = videoRef.current
+    if (v) {
+      v.pause()
+    }
+    setHeroState('ended')
+  }
+
+  const handleTimeUpdate = () => {
+    const v = videoRef.current
+    if (v && v.duration > 0 && v.currentTime >= v.duration - 0.2) {
+      v.pause()
+      setHeroState('ended')
+    }
+  }
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
-      {/* Video layer - continuous background video loop */}
+    <section className="relative w-full h-screen flex flex-col justify-center items-center text-center overflow-hidden bg-[#1C1917]">
+      {/* Video layer */}
       <video
         ref={videoRef}
         src={heroVideo}
-        autoPlay
-        loop
         muted
         playsInline
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover z-0"
-        onCanPlay={handleVideoReady}
-        onCanPlayThrough={handleVideoReady}
-        onLoadedData={handleProgress}
-        onProgress={handleProgress}
-        onLoadedMetadata={handleProgress}
-        onPlay={handleVideoReady}
+        onLoadedMetadata={handleLoadedMetadata}
+        onPlay={(e) => { e.currentTarget.playbackRate = 1.4 }}
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={handleVideoEnded}
       >
         <source src={heroVideo} type="video/mp4" />
       </video>
-      {/* Dark vignette */}
-      <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/50 pointer-events-none z-1" />
 
-      {/* Content with Staggered Entrance Animations */}
-      <div className="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 py-20 md:py-28 w-full flex flex-col items-center text-center">
-        <div className="max-w-4xl flex flex-col items-center text-center">
-          
-          {/* 1. Category Label */}
-          <p
-            className={`text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light transition-all duration-1000 ease-out delay-200 ${
-              showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-          >
-            Interior Design & Architecture Practice
+      {/* Cinematic Vignette */}
+      <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-[#1C1917]/90 via-[#1C1917]/30 to-[#1C1917]/60 pointer-events-none z-1" />
+
+      {/* State 0: Intro (First Frame Stop) */}
+      {heroState === 'intro' && (
+        <div className="relative z-10 max-w-3xl mx-auto px-8 py-12 flex flex-col items-center text-center transition-all duration-700">
+          <p className="text-[#B8956A] text-xs tracking-[0.3em] uppercase mb-4 font-mono">
+            FORMA Architecture & Interior Practice
           </p>
-
-          {/* 2. Headline */}
-          <h1
+          <h2
             style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            className={`text-[#F5F1EB] text-5xl md:text-7xl lg:text-8xl font-medium leading-[1.05] mb-6 transition-all duration-1000 ease-out delay-400 ${
-              showContent ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.98]'
-            }`}
+            className="text-[#F5F1EB] text-4xl md:text-6xl font-medium tracking-tight mb-8 leading-tight"
           >
-            Spaces Designed
-            <br />
-            <em className="italic font-normal text-[#B8956A]">Around You</em>
-          </h1>
-
-          {/* 3. Subtitle */}
-          <p
-            className={`text-[#F5F1EB]/70 text-base md:text-lg font-light leading-relaxed mb-10 max-w-none md:whitespace-nowrap mx-auto transition-all duration-1000 ease-out delay-600 ${
-              showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
+            Crafting Spaces with Intent
+          </h2>
+          <button
+            onClick={handleStartWork}
+            className="bg-[#F5F1EB] text-[#1C1917] text-xs tracking-[0.2em] uppercase px-10 py-4 font-medium hover:bg-[#B8956A] hover:text-[#F5F1EB] transition-all duration-500 shadow-2xl cursor-pointer mb-10"
           >
-            Thoughtful interiors shaped by architecture, material, and the way you live
-          </p>
-
-          {/* 4. CTAs */}
-          <div
-            className={`flex flex-wrap justify-center gap-4 transition-all duration-1000 ease-out delay-800 ${
-              showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-          >
-            <a
-              href="#work"
-              className="bg-[#F5F1EB] text-[#1C1917] text-xs tracking-[0.12em] uppercase px-8 py-3.5 hover:bg-[#B8956A] hover:text-[#F5F1EB] transition-all duration-300 shadow-xl"
+            Start the Work
+          </button>
+          
+          {/* Click this button prompt styled like scroll down without arrow */}
+          <div className="animate-bounce">
+            <button
+              onClick={handleStartWork}
+              className="text-[#F5F1EB]/50 hover:text-[#B8956A] text-xs tracking-widest uppercase font-mono cursor-pointer transition-colors"
             >
-              Explore Our Work
-            </a>
-            <a
-              href="#contact"
-              className="border border-[#F5F1EB]/50 text-[#F5F1EB] text-xs tracking-[0.12em] uppercase px-8 py-3.5 hover:border-[#F5F1EB] hover:bg-[#F5F1EB]/10 transition-all duration-300"
-            >
-              Start a Project
-            </a>
+              Click this button
+            </button>
           </div>
-
         </div>
-      </div>
+      )}
+
+      {/* State 2: End Frame Staggered Reveal */}
+      {heroState === 'ended' && (
+        <div className="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 py-20 w-full flex flex-col items-center text-center">
+          <div className="max-w-4xl flex flex-col items-center text-center">
+            
+            {/* 1. Category Label (100ms delay) */}
+            <p
+              className={`text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-100 ${
+                animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            >
+              Interior Design & Architecture Practice
+            </p>
+
+            {/* 2. Main Headline (300ms delay) */}
+            <h1
+              style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+              className={`text-[#F5F1EB] text-5xl md:text-7xl lg:text-8xl font-medium leading-[1.05] mb-6 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-300 ${
+                animateIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.97]'
+              }`}
+            >
+              Spaces Designed
+              <br />
+              <em className="italic font-normal text-[#B8956A]">Around You</em>
+            </h1>
+
+            {/* 3. Subtitle (500ms delay) */}
+            <p
+              className={`text-[#F5F1EB]/80 text-base md:text-lg font-light leading-relaxed mb-10 max-w-2xl mx-auto transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-500 ${
+                animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            >
+              Thoughtful interiors shaped by architecture, material, and the way you live
+            </p>
+
+            {/* 4. Action Buttons (700ms delay) */}
+            <div
+              className={`flex flex-wrap justify-center items-center gap-4 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-700 ${
+                animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            >
+              <a
+                href="#work"
+                className="bg-[#F5F1EB] text-[#1C1917] text-xs tracking-[0.12em] uppercase px-8 py-3.5 hover:bg-[#B8956A] hover:text-[#F5F1EB] transition-all duration-300 shadow-xl"
+              >
+                Explore Our Work
+              </a>
+              <a
+                href="#contact"
+                className="border border-[#F5F1EB]/50 text-[#F5F1EB] text-xs tracking-[0.12em] uppercase px-8 py-3.5 hover:border-[#F5F1EB] hover:bg-[#F5F1EB]/10 transition-all duration-300"
+              >
+                Start a Project
+              </a>
+            </div>
+
+            {/* 5. Scroll Prompt (1000ms delay) */}
+            <div
+              className={`mt-12 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-1000 ${
+                animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+            >
+              <a href="#work" className="text-[#F5F1EB]/50 hover:text-[#B8956A] text-xs tracking-widest uppercase font-mono flex flex-col items-center gap-1 animate-bounce">
+                <span>Scroll Down</span>
+                <span>↓</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      )}
     </section>
   )
 }
@@ -1599,182 +1648,47 @@ function Footer() {
   )
 }
 
-/* ─── Preloader ────────────────────────────────────────────────────── */
-function Preloader({
-  isVideoReady,
-  videoDownloadPercent,
-  onComplete,
-}: {
-  isVideoReady: boolean
-  videoDownloadPercent: number
-  onComplete?: () => void
-}) {
-  const [progress, setProgress] = useState(0)
-  const [loadingTextIndex, setLoadingTextIndex] = useState(0)
-  const [isFinished, setIsFinished] = useState(false)
-  const [isDone, setIsDone] = useState(false)
-
-  const isVideoReadyRef = useRef(isVideoReady)
-  const videoDownloadPercentRef = useRef(videoDownloadPercent)
-
-  useEffect(() => {
-    isVideoReadyRef.current = isVideoReady
-  }, [isVideoReady])
-
-  useEffect(() => {
-    videoDownloadPercentRef.current = videoDownloadPercent
-  }, [videoDownloadPercent])
-
-  const theme = { bg: '#1C1917', text: '#F5F1EB', accent: '#B8956A', sub: '#9B9189' }
-
-  const loadingPhrases = [
-    'Architectural Form & Light',
-    'Curating Materials & Textures',
-    'Downloading Cinema Video',
-    'Spaces Designed Around You',
-    'Welcome to FORMA',
-  ]
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          return 100
-        }
-
-        const ready = isVideoReadyRef.current
-        const pct = videoDownloadPercentRef.current
-
-        let cap = 92
-        if (pct > 0) {
-          cap = Math.min(95, Math.max(prev, pct))
-        }
-
-        if (prev >= cap && !ready) {
-          return cap
-        }
-
-        const diff = Math.floor(Math.random() * 3) + 2
-        return Math.min(prev + diff, 100)
-      })
-    }, 40)
-
-    return () => {
-      clearInterval(interval)
-      document.body.style.overflow = ''
-    }
-  }, [])
-
-  useEffect(() => {
-    if (progress < 25) setLoadingTextIndex(0)
-    else if (progress < 50) setLoadingTextIndex(1)
-    else if (progress < 80) setLoadingTextIndex(2)
-    else if (progress < 99) setLoadingTextIndex(3)
-    else setLoadingTextIndex(4)
-
-    if (progress === 100) {
-      const timer = setTimeout(() => {
-        setIsFinished(true)
-        document.body.style.overflow = ''
-        if (onComplete) onComplete()
-      }, 400)
-
-      const removeTimer = setTimeout(() => {
-        setIsDone(true)
-        document.body.style.overflow = ''
-      }, 1400)
-
-      return () => {
-        clearTimeout(timer)
-        clearTimeout(removeTimer)
-      }
-    }
-  }, [progress, onComplete])
-
-  if (isDone) return null
-
-  return (
-    <div
-      style={{ backgroundColor: theme.bg }}
-      className={`fixed inset-0 z-[100] flex flex-col justify-between p-8 md:p-16 transition-all duration-1000 cubic-bezier(0.77,0,0.175,1) ${
-        isFinished ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
-      }`}
-    >
-      {/* Top Bar */}
-      <div className="flex items-center justify-between text-xs tracking-[0.2em] uppercase font-mono" style={{ color: `${theme.text}60` }}>
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: theme.accent }} />
-          <span>FORMA</span>
-        </div>
-        <span>Architecture & Interior</span>
-      </div>
-
-      {/* Center Brand & Phrase */}
-      <div className="max-w-4xl mx-auto w-full text-center flex flex-col items-center justify-center my-auto py-12">
-        <h1
-          style={{ fontFamily: 'Playfair Display, Georgia, serif', color: theme.text }}
-          className="text-6xl md:text-8xl lg:text-9xl font-medium tracking-tight mb-6"
-        >
-          FORMA
-        </h1>
-
-        {/* Dynamic phrase reveal */}
-        <div className="h-8 overflow-hidden relative">
-          <p
-            key={loadingTextIndex}
-            style={{ color: theme.accent }}
-            className="text-xs md:text-sm tracking-[0.3em] uppercase font-light fade-up"
-          >
-            {loadingPhrases[loadingTextIndex]}
-          </p>
-        </div>
-      </div>
-
-      {/* Bottom Counter & Hairline Progress */}
-      <div className="w-full max-w-[1440px] mx-auto">
-        <div className="flex items-end justify-between mb-4 font-mono" style={{ color: theme.text }}>
-          <span className="text-xs tracking-widest uppercase" style={{ color: theme.sub }}>
-            {isVideoReady ? 'Video Ready • Finalizing' : `Downloading Cinema Video ${videoDownloadPercent > 0 ? `(${videoDownloadPercent}%)` : ''}`}
-          </span>
-          <span className="text-3xl md:text-5xl font-light" style={{ color: theme.text }}>
-            {String(progress).padStart(2, '0')}%
-          </span>
-        </div>
-
-        {/* Hairline Progress Bar */}
-        <div className="w-full h-0.5 relative overflow-hidden rounded-full" style={{ backgroundColor: `${theme.text}20` }}>
-          <div
-            className="h-full transition-all duration-200 ease-out"
-            style={{ width: `${progress}%`, backgroundColor: theme.accent }}
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
-
 /* ─── App ─────────────────────────────────────────────────────────── */
 export default function App() {
-  const [isVideoReady, setIsVideoReady] = useState(false)
-  const [videoDownloadPercent, setVideoDownloadPercent] = useState(0)
-  const [isPreloaderFinished, setIsPreloaderFinished] = useState(false)
+  const [heroState, setHeroState] = useState<'intro' | 'playing' | 'ended'>('intro')
+
+  useEffect(() => {
+    if (heroState !== 'ended') {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+      window.scrollTo(0, 0)
+
+      const preventScroll = (e: Event) => {
+        e.preventDefault()
+      }
+
+      const preventKeys = (e: KeyboardEvent) => {
+        if (['Space', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.code)) {
+          e.preventDefault()
+        }
+      }
+
+      window.addEventListener('wheel', preventScroll, { passive: false })
+      window.addEventListener('touchmove', preventScroll, { passive: false })
+      window.addEventListener('keydown', preventKeys, { passive: false })
+
+      return () => {
+        document.body.style.overflow = ''
+        document.documentElement.style.overflow = ''
+        window.removeEventListener('wheel', preventScroll)
+        window.removeEventListener('touchmove', preventScroll)
+        window.removeEventListener('keydown', preventKeys)
+      }
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+  }, [heroState])
 
   return (
     <div className="min-h-screen">
-      <Preloader
-        isVideoReady={isVideoReady}
-        videoDownloadPercent={videoDownloadPercent}
-        onComplete={() => setIsPreloaderFinished(true)}
-      />
-      <Navigation showContent={isPreloaderFinished} />
-      <Hero
-        showContent={isPreloaderFinished}
-        onVideoReady={() => setIsVideoReady(true)}
-        onVideoProgress={(pct) => setVideoDownloadPercent(pct)}
-      />
+      <Navigation visible={heroState === 'ended'} />
+      <Hero heroState={heroState} setHeroState={setHeroState} />
       <SelectedWork />
       <ProjectDetail />
       <Services />
