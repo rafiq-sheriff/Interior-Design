@@ -362,10 +362,10 @@ function Hero({ heroState, setHeroState, onVideoProgress, onVideoReady }: HeroPr
             style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
             className="text-[#F5F1EB] text-4xl md:text-6xl font-medium tracking-tight mb-6 leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]"
           >
-            Watch a space take shape.
+            Watch a space take shape
           </h2>
           <p className="text-[#F5F1EB] text-base md:text-lg max-w-2xl mb-8 leading-relaxed font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
-            From an empty room to a considered interior, explore how our approach transforms space.
+            From an empty room to a considered interior, explore how our approach transforms space
           </p>
           <button
             onClick={handleStartWork}
@@ -789,7 +789,7 @@ function SelectedWork() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 md:mb-16 gap-8">
           <SectionHeader
             label="Selected Portfolio"
-            heading={"Spaces Designed\nWith Purpose."}
+            heading={"Spaces Designed\nWith Purpose"}
             sub="Explore our curated architectural and interior commissions across India"
           />
 
@@ -936,7 +936,7 @@ const SERVICES = [
   {
     num: '06',
     title: 'Styling & Material Selection',
-    desc: 'Curation of materials, finishes, textiles, and objects that give a space its character.',
+    desc: 'Curation of materials, finishes, textiles, and objects that give a space its character',
   },
 ]
 
@@ -1114,12 +1114,12 @@ function About() {
           <div className="md:col-span-6 md:col-start-7">
             <SectionHeader
               label="About the Studio"
-              heading={"Spaces With\nCharacter."}
+              heading={"Spaces With\nCharacter"}
             />
             <p className="text-[#1C1917]/70 text-base font-light leading-relaxed mb-6">
               FORMA is a multidisciplinary interior design and architecture practice founded on the belief
               that every space has a story waiting to be told. We work across residential, commercial, and
-              hospitality typologies — bringing the same level of care and craft to each project.
+              hospitality typologies — bringing the same level of care and craft to each project
             </p>
             <p className="text-[#1C1917]/70 text-base font-light leading-relaxed mb-12">
               Our process is deeply collaborative. We listen before we draw, observe before we propose,
@@ -1163,7 +1163,7 @@ function Materials() {
         <div className="mb-16 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
           <SectionHeader
             label="Craft"
-            heading="Details Matter."
+            heading="Details Matter"
           />
           <p className="text-[#9B9189] text-sm font-light leading-relaxed max-w-sm md:text-right">
             We select every material with intention — each surface, texture, and finish chosen for how it reads in light and how it feels in life.
@@ -1427,10 +1427,10 @@ function CTA() {
           className="text-[#F5F1EB] text-4xl md:text-6xl lg:text-7xl font-medium leading-tight mb-6 max-w-3xl mx-auto"
         >
           Let's Create a Space That Feels Like{' '}
-          <em className="italic font-normal text-[#B8956A]">You.</em>
+          <em className="italic font-normal text-[#B8956A]">You</em>
         </h2>
         <p className="text-[#F5F1EB]/50 text-base md:text-lg font-light mb-12 max-w-md mx-auto">
-          Have a space in mind? Tell us about your project.
+          Have a space in mind? Tell us about your project
         </p>
         <a
           href="#contact"
@@ -1456,7 +1456,7 @@ function Contact() {
       <div className="max-w-[1440px] mx-auto px-8 md:px-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-16">
           <div className="md:col-span-5">
-            <SectionHeader label="Get in Touch" heading={"Tell Us\nAbout Your\nProject."} />
+            <SectionHeader label="Get in Touch" heading={"Tell Us\nAbout Your\nProject"} />
             <div className="space-y-4 text-sm text-[#9B9189] font-light">
               <p>hello@formastudio.in</p>
               <p>+91 44 0000 0000</p>
@@ -1561,7 +1561,7 @@ function Footer() {
               className="text-[#F5F1EB] text-3xl md:text-5xl font-medium leading-tight"
             >
               Stories on craft, material, <br className="hidden sm:block" />
-              and spatial design — in your inbox.
+              and spatial design — in your inbox
             </h3>
           </div>
           <div className="lg:col-span-5">
@@ -1728,7 +1728,7 @@ function Footer() {
 
         {/* Bottom Rights & Legal */}
         <div className="pt-6 border-t border-[#F5F1EB]/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#9B9189]/60 font-light">
-          <p>© {new Date().getFullYear()} FORMA Pvt. Ltd. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Sherifiq All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-[#9B9189] transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-[#9B9189] transition-colors">Terms of Architectural Service</a>
