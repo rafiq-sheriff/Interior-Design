@@ -149,13 +149,95 @@ function Navigation({ visible = true }: { visible?: boolean }) {
   )
 }
 
+/* ─── Preloader Component ─────────────────────────────────────────── */
+interface PreloaderProps {
+  progress: number
+  isReady: boolean
+  onComplete: () => void
+}
+
+function Preloader({ progress, isReady, onComplete }: PreloaderProps) {
+  const [displayProgress, setDisplayProgress] = useState(0)
+  const [fadingOut, setFadingOut] = useState(false)
+  const [hidden, setHidden] = useState(false)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDisplayProgress((prev) => {
+        const target = isReady ? 100 : Math.max(progress, Math.min(94, prev + 3))
+        if (prev < target) {
+          return prev + 1
+        }
+        if (isReady && prev >= 99) {
+          return 100
+        }
+        return prev
+      })
+    }, 16)
+    return () => clearInterval(timer)
+  }, [progress, isReady])
+
+  useEffect(() => {
+    if (displayProgress >= 100) {
+      const timer1 = setTimeout(() => setFadingOut(true), 200)
+      const timer2 = setTimeout(() => {
+        setHidden(true)
+        onComplete()
+      }, 800)
+      return () => {
+        clearTimeout(timer1)
+        clearTimeout(timer2)
+      }
+    }
+  }, [displayProgress, onComplete])
+
+  if (hidden) return null
+
+  return (
+    <div
+      style={{ fontFamily: 'Instrument Sans, system-ui, sans-serif' }}
+      className={`fixed inset-0 z-[100] bg-[#1C1917] text-[#F5F1EB] flex flex-col items-center justify-center p-8 transition-opacity duration-700 ease-out ${
+        fadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}
+    >
+      <div className="flex flex-col items-center max-w-xs w-full text-center">
+        {/* Minimal Brand Header */}
+        <span
+          style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
+          className="text-3xl md:text-4xl text-[#F5F1EB] font-medium tracking-tight mb-2"
+        >
+          FORMA
+        </span>
+        <span className="text-[10px] tracking-[0.3em] uppercase text-[#B8956A] font-mono mb-8">
+          Architecture & Interior Practice
+        </span>
+
+        {/* Ultra-thin Hairline Progress Bar */}
+        <div className="w-44 h-[1.5px] bg-[#F5F1EB]/15 relative overflow-hidden mb-4">
+          <div
+            className="h-full bg-[#B8956A] transition-all duration-150 ease-out"
+            style={{ width: `${displayProgress}%` }}
+          />
+        </div>
+
+        {/* Subtle Percentage Counter */}
+        <span className="text-[10px] tracking-[0.25em] font-mono text-[#9B9189]">
+          {String(displayProgress).padStart(2, '0')}%
+        </span>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Hero ────────────────────────────────────────────────────────── */
 interface HeroProps {
   heroState: 'intro' | 'playing' | 'ended'
   setHeroState: (s: 'intro' | 'playing' | 'ended') => void
+  onVideoProgress?: (progress: number) => void
+  onVideoReady?: () => void
 }
 
-function Hero({ heroState, setHeroState }: HeroProps) {
+function Hero({ heroState, setHeroState, onVideoProgress, onVideoReady }: HeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [animateIn, setAnimateIn] = useState(false)
 
@@ -178,13 +260,35 @@ function Hero({ heroState, setHeroState }: HeroProps) {
     }
   }, [heroState])
 
-  const handleLoadedMetadata = useCallback(() => {
+  const handleVideoProgress = () => {
+    const v = videoRef.current
+    if (v && v.duration > 0 && v.buffered.length > 0) {
+      const end = v.buffered.end(v.buffered.length - 1)
+      const pct = Math.min(100, Math.round((end / v.duration) * 100))
+      if (onVideoProgress) onVideoProgress(pct)
+    }
+  }
+
+  const handleVideoReady = useCallback(() => {
     const v = videoRef.current
     if (v && heroState === 'intro') {
       v.currentTime = 0
       v.pause()
     }
-  }, [heroState])
+    if (onVideoReady) onVideoReady()
+  }, [heroState, onVideoReady])
+
+  // Automatic check & fallback timeout for cached/fast/slow video load
+  useEffect(() => {
+    const v = videoRef.current
+    if (v && v.readyState >= 3) {
+      if (onVideoReady) onVideoReady()
+    }
+    const fallbackTimer = setTimeout(() => {
+      if (onVideoReady) onVideoReady()
+    }, 4500)
+    return () => clearTimeout(fallbackTimer)
+  }, [onVideoReady])
 
   const handleStartWork = () => {
     setHeroState('playing')
@@ -233,7 +337,11 @@ function Hero({ heroState, setHeroState }: HeroProps) {
         playsInline
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover z-0"
-        onLoadedMetadata={handleLoadedMetadata}
+        onLoadedMetadata={handleVideoReady}
+        onLoadedData={handleVideoReady}
+        onCanPlay={handleVideoReady}
+        onCanPlayThrough={handleVideoReady}
+        onProgress={handleVideoProgress}
         onPlay={(e) => { e.currentTarget.playbackRate = 1.4 }}
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleVideoEnded}
@@ -283,13 +391,7 @@ function Hero({ heroState, setHeroState }: HeroProps) {
         <div className="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 py-20 w-full flex flex-col items-center text-center">
           <div className="max-w-4xl flex flex-col items-center text-center">
 
-            {/* 1. Category Label (100ms delay) */}
-            <p
-              className={`text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-100 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-                }`}
-            >
-              Interior Design & Architecture Practice
-            </p>
+            
 
             {/* 2. Main Headline (300ms delay) */}
             <h1
@@ -1642,9 +1744,12 @@ function Footer() {
 /* ─── App ─────────────────────────────────────────────────────────── */
 export default function App() {
   const [heroState, setHeroState] = useState<'intro' | 'playing' | 'ended'>('intro')
+  const [videoProgress, setVideoProgress] = useState(0)
+  const [videoReady, setVideoReady] = useState(false)
+  const [preloaderActive, setPreloaderActive] = useState(true)
 
   useEffect(() => {
-    if (heroState !== 'ended') {
+    if (heroState !== 'ended' || preloaderActive) {
       document.body.style.overflow = 'hidden'
       document.documentElement.style.overflow = 'hidden'
       window.scrollTo(0, 0)
@@ -1674,12 +1779,24 @@ export default function App() {
       document.body.style.overflow = ''
       document.documentElement.style.overflow = ''
     }
-  }, [heroState])
+  }, [heroState, preloaderActive])
 
   return (
     <div className="min-h-screen">
+      {preloaderActive && (
+        <Preloader
+          progress={videoProgress}
+          isReady={videoReady}
+          onComplete={() => setPreloaderActive(false)}
+        />
+      )}
       <Navigation visible={heroState === 'ended'} />
-      <Hero heroState={heroState} setHeroState={setHeroState} />
+      <Hero
+        heroState={heroState}
+        setHeroState={setHeroState}
+        onVideoProgress={(pct) => setVideoProgress((prev) => Math.max(prev, pct))}
+        onVideoReady={() => setVideoReady(true)}
+      />
       <SelectedWork />
       <ProjectDetail />
       <Services />
