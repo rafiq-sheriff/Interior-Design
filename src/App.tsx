@@ -64,22 +64,19 @@ function Navigation({ visible = true }: { visible?: boolean }) {
   return (
     <nav
       style={{ fontFamily: 'Instrument Sans, system-ui, sans-serif' }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 cubic-bezier(0.16,1,0.3,1) ${
-        visible ? 'translate-y-0 opacity-100 pointer-events-auto' : '-translate-y-6 opacity-0 pointer-events-none'
-      } ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 cubic-bezier(0.16,1,0.3,1) ${visible ? 'translate-y-0 opacity-100 pointer-events-auto' : '-translate-y-6 opacity-0 pointer-events-none'
+        } ${scrolled
           ? 'bg-[#F5F1EB]/95 backdrop-blur-sm border-b border-[rgba(28,25,23,0.1)] shadow-sm text-[#1C1917]'
-          : 'bg-[#1C1917]/70 backdrop-blur-md border-b border-white/10 text-[#F5F1EB]'
-      }`}
+          : 'bg-transparent border-b border-transparent text-[#F5F1EB]'
+        }`}
     >
       <div className="max-w-[1440px] mx-auto px-8 md:px-16 flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
         <a href="#" className="flex items-center gap-2 group">
           <span
             style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            className={`text-xl font-medium tracking-tight transition-colors duration-300 ${
-              scrolled ? 'text-[#1C1917]' : 'text-[#F5F1EB]'
-            }`}
+            className={`text-xl font-medium tracking-tight transition-colors duration-300 ${scrolled ? 'text-[#1C1917]' : 'text-[#F5F1EB]'
+              }`}
           >
             FORMA
           </span>
@@ -91,11 +88,10 @@ function Navigation({ visible = true }: { visible?: boolean }) {
             <a
               key={item.label}
               href={item.href}
-              className={`text-sm tracking-wide transition-colors duration-300 ${
-                scrolled
+              className={`text-sm tracking-wide transition-colors duration-300 ${scrolled
                   ? 'text-[#1C1917]/70 hover:text-[#1C1917]'
                   : 'text-[#F5F1EB]/80 hover:text-[#F5F1EB]'
-              }`}
+                }`}
             >
               {item.label}
             </a>
@@ -106,11 +102,10 @@ function Navigation({ visible = true }: { visible?: boolean }) {
         <div className="hidden md:block">
           <a
             href="#contact"
-            className={`text-xs tracking-[0.12em] uppercase px-6 py-2.5 transition-all duration-300 border ${
-              scrolled
+            className={`text-xs tracking-[0.12em] uppercase px-6 py-2.5 transition-all duration-300 border ${scrolled
                 ? 'border-[#1C1917] text-[#1C1917] hover:bg-[#1C1917] hover:text-[#F5F1EB]'
                 : 'border-[#F5F1EB] text-[#F5F1EB] hover:bg-[#F5F1EB] hover:text-[#1C1917]'
-            }`}
+              }`}
           >
             Start a Project
           </a>
@@ -252,27 +247,30 @@ function Hero({ heroState, setHeroState }: HeroProps) {
       {/* State 0: Intro (First Frame Stop) */}
       {heroState === 'intro' && (
         <div className="relative z-10 max-w-3xl mx-auto px-8 py-12 flex flex-col items-center text-center transition-all duration-700">
-          <p className="text-[#B8956A] text-xs tracking-[0.3em] uppercase mb-4 font-mono">
+          <p className="text-[#D4B082] text-xs md:text-sm tracking-[0.3em] uppercase mb-4 font-mono font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             FORMA Architecture & Interior Practice
           </p>
           <h2
             style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-            className="text-[#F5F1EB] text-4xl md:text-6xl font-medium tracking-tight mb-8 leading-tight"
+            className="text-[#F5F1EB] text-4xl md:text-6xl font-medium tracking-tight mb-6 leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]"
           >
-            Crafting Spaces with Intent
+            Watch a space take shape.
           </h2>
+          <p className="text-[#F5F1EB] text-base md:text-lg max-w-2xl mb-8 leading-relaxed font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+            From an empty room to a considered interior, explore how our approach transforms space.
+          </p>
           <button
             onClick={handleStartWork}
             className="bg-[#F5F1EB] text-[#1C1917] text-xs tracking-[0.2em] uppercase px-10 py-4 font-medium hover:bg-[#B8956A] hover:text-[#F5F1EB] transition-all duration-500 shadow-2xl cursor-pointer mb-10"
           >
-            Start the Work
+            SEE THE TRANSFORMATION
           </button>
-          
+
           {/* Click this button prompt styled like scroll down without arrow */}
           <div className="animate-bounce">
             <button
               onClick={handleStartWork}
-              className="text-[#F5F1EB]/50 hover:text-[#B8956A] text-xs tracking-widest uppercase font-mono cursor-pointer transition-colors"
+              className="text-[#F5F1EB]/80 hover:text-[#B8956A] text-xs tracking-widest uppercase font-mono cursor-pointer transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
             >
               Click this button
             </button>
@@ -284,12 +282,11 @@ function Hero({ heroState, setHeroState }: HeroProps) {
       {heroState === 'ended' && (
         <div className="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 py-20 w-full flex flex-col items-center text-center">
           <div className="max-w-4xl flex flex-col items-center text-center">
-            
+
             {/* 1. Category Label (100ms delay) */}
             <p
-              className={`text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-100 ${
-                animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
+              className={`text-[#B8956A] text-xs tracking-[0.25em] uppercase mb-6 font-light transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-100 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+                }`}
             >
               Interior Design & Architecture Practice
             </p>
@@ -297,9 +294,8 @@ function Hero({ heroState, setHeroState }: HeroProps) {
             {/* 2. Main Headline (300ms delay) */}
             <h1
               style={{ fontFamily: 'Playfair Display, Georgia, serif' }}
-              className={`text-[#F5F1EB] text-5xl md:text-7xl lg:text-8xl font-medium leading-[1.05] mb-6 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-300 ${
-                animateIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.97]'
-              }`}
+              className={`text-[#F5F1EB] text-5xl md:text-7xl lg:text-8xl font-medium leading-[1.05] mb-6 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-300 ${animateIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.97]'
+                }`}
             >
               Spaces Designed
               <br />
@@ -308,18 +304,16 @@ function Hero({ heroState, setHeroState }: HeroProps) {
 
             {/* 3. Subtitle (500ms delay) */}
             <p
-              className={`text-[#F5F1EB]/80 text-base md:text-lg font-light leading-relaxed mb-10 max-w-2xl mx-auto transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-500 ${
-                animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
+              className={`text-[#F5F1EB]/80 text-base md:text-lg font-light leading-relaxed mb-10 max-w-2xl mx-auto transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-500 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+                }`}
             >
               Thoughtful interiors shaped by architecture, material, and the way you live
             </p>
 
             {/* 4. Action Buttons (700ms delay) */}
             <div
-              className={`flex flex-wrap justify-center items-center gap-4 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-700 ${
-                animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
+              className={`flex flex-wrap justify-center items-center gap-4 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-700 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+                }`}
             >
               <a
                 href="#work"
@@ -337,9 +331,8 @@ function Hero({ heroState, setHeroState }: HeroProps) {
 
             {/* 5. Scroll Prompt (1000ms delay) */}
             <div
-              className={`mt-12 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-1000 ${
-                animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
+              className={`mt-12 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-1000 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
             >
               <a href="#work" className="text-[#F5F1EB]/50 hover:text-[#B8956A] text-xs tracking-widest uppercase font-mono flex flex-col items-center gap-1 animate-bounce">
                 <span>Scroll Down</span>
@@ -492,8 +485,8 @@ function ProjectCard({
               project.id === 'the-atelier'
                 ? '3/4'
                 : project.id === 'villa-lumiere'
-                ? '16/9'
-                : '4/3',
+                  ? '16/9'
+                  : '4/3',
           }}
         />
 
@@ -575,7 +568,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
   return (
     <div className="fixed inset-0 z-[120] bg-[#1C1917]/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-10 overflow-y-auto fade-up">
       <div className="bg-[#F5F1EB] text-[#1C1917] max-w-5xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl border border-[#1C1917]/10">
-        
+
         {/* Modal Header */}
         <div className="sticky top-0 bg-[#F5F1EB]/95 backdrop-blur-md px-8 py-5 border-b border-[rgba(28,25,23,0.1)] flex items-center justify-between z-20">
           <div>
@@ -595,7 +588,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
 
         {/* Modal Body */}
         <div className="p-8 md:p-12 space-y-10">
-          
+
           {/* Main Gallery Display */}
           <div className="space-y-4">
             <div className="overflow-hidden bg-[#EDE8DF] aspect-[16/10] w-full">
@@ -611,9 +604,8 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
                 <button
                   key={idx}
                   onClick={() => setActiveImage(gImg)}
-                  className={`w-24 h-16 overflow-hidden flex-shrink-0 border-2 transition-all ${
-                    activeImage === gImg ? 'border-[#B8956A] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
-                  }`}
+                  className={`w-24 h-16 overflow-hidden flex-shrink-0 border-2 transition-all ${activeImage === gImg ? 'border-[#B8956A] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
                 >
                   <img src={gImg} alt="Thumbnail" className="w-full h-full object-cover" />
                 </button>
@@ -623,14 +615,14 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
 
           {/* Project Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-6 border-t border-[rgba(28,25,23,0.1)]">
-            
+
             {/* Description */}
             <div className="md:col-span-7">
               <h4 className="text-xs tracking-[0.25em] uppercase text-[#B8956A] mb-3 font-mono">Architectural Brief</h4>
               <p className="text-[#1C1917]/80 text-base leading-relaxed font-light mb-6">
                 {project.description}
               </p>
-              
+
               <h4 className="text-xs tracking-[0.25em] uppercase text-[#B8956A] mb-3 font-mono">Specified Material Palette</h4>
               <div className="flex flex-wrap gap-2">
                 {project.materials.map((m) => (
@@ -690,7 +682,7 @@ function SelectedWork() {
   return (
     <section id="work" className="py-24 md:py-36 bg-[#F5F1EB] relative">
       <div className="max-w-[1440px] mx-auto px-8 md:px-16">
-        
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 md:mb-16 gap-8">
           <SectionHeader
@@ -698,7 +690,7 @@ function SelectedWork() {
             heading={"Spaces Designed\nWith Purpose."}
             sub="Explore our curated architectural and interior commissions across India"
           />
-          
+
           {/* Category Filter Pills */}
           <div className="flex flex-wrap items-center gap-2 self-start md:self-end">
             {CATEGORIES.map((cat) => {
@@ -708,11 +700,10 @@ function SelectedWork() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 transition-all duration-300 border ${
-                    isSelected
+                  className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 transition-all duration-300 border ${isSelected
                       ? 'bg-[#1C1917] text-[#F5F1EB] border-[#1C1917]'
                       : 'bg-transparent text-[#1C1917]/70 border-[rgba(28,25,23,0.15)] hover:border-[#1C1917] hover:text-[#1C1917]'
-                  }`}
+                    }`}
                 >
                   {cat} <span className="text-[10px] opacity-60 ml-1 font-mono">({count})</span>
                 </button>
